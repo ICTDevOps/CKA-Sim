@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Feedback } from "@/components/Feedback";
+import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Prompt, type PromptHandle } from "@/components/Prompt";
 import { QuestionCard } from "@/components/QuestionCard";
 import { ScoreSummary } from "@/components/ScoreSummary";
 import { Timer } from "@/components/Timer";
+import { Link } from "@/i18n/navigation";
 import { loadAllQuestions, shuffle } from "@/lib/questions";
 import type { Question } from "@/lib/questions/types";
 import {
@@ -25,6 +27,9 @@ const TOTAL_QUESTIONS = 10;
 const PER_QUESTION_LIMIT_SEC = 60;
 
 export default function SessionPage() {
+  const t = useTranslations("session");
+  const tCommon = useTranslations("common");
+
   const initial = useMemo<SessionState>(() => {
     const all = loadAllQuestions();
     const picked = shuffle(all).slice(
@@ -49,10 +54,6 @@ export default function SessionPage() {
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const endedRef = useRef(false);
 
-  // Démarrage automatique : on crée un run côté serveur ET on démarre le
-  // chrono côté client. La création du run est fire-and-forget : si elle
-  // échoue, l'utilisateur peut quand même jouer (mode dégradé sans
-  // persistance), on log l'erreur dans la console.
   useEffect(() => {
     setState((s) => (s.status === "ready" ? startSession(s) : s));
     fetch("/api/runs", {
@@ -69,15 +70,12 @@ export default function SessionPage() {
       .catch((e) => console.warn("[cka-sim] create run failed:", e));
   }, [initial.config.totalQuestions]);
 
-  // Cleanup du timeout d'avance si on démonte la page.
   useEffect(() => {
     return () => {
       if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
     };
   }, []);
 
-  // Quand la session se termine, on clôture le run côté serveur (une seule
-  // fois — guarded par endedRef).
   useEffect(() => {
     if (state.status !== "finished" || !runId || endedRef.current) return;
     endedRef.current = true;
@@ -156,19 +154,23 @@ export default function SessionPage() {
     <main className="mx-auto max-w-3xl px-6 py-8">
       <header className="mb-6 flex items-center justify-between">
         <Link href="/" className="text-sm text-terminal-dim hover:underline">
-          ← Quitter
+          ← {tCommon("exit")}
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-terminal-dim">
-            {state.attempts.filter((a) => a.correct).length} ✓ ·{" "}
-            {state.attempts.length - state.attempts.filter((a) => a.correct).length}{" "}
-            ✗
+            {t("scoreboard", {
+              correct: state.attempts.filter((a) => a.correct).length,
+              wrong:
+                state.attempts.length -
+                state.attempts.filter((a) => a.correct).length
+            })}
           </span>
           <Timer
             startedAt={state.currentQuestionStartedAt}
             limitSec={state.config.perQuestionTimeLimitSec}
             onTimeout={() => !showFeedback && handleSubmit(input)}
           />
+          <LocaleSwitcher />
         </div>
       </header>
 
@@ -190,16 +192,14 @@ export default function SessionPage() {
         />
 
         <div className="flex items-center justify-between text-xs text-terminal-dim">
-          <span>
-            Entrée pour valider · Échap-équivalent : bouton « Passer »
-          </span>
+          <span>{t("submitHint")}</span>
           <button
             type="button"
             onClick={handleSkip}
             disabled={!!showFeedback}
             className="rounded border border-terminal-dim/40 px-3 py-1 hover:border-terminal-fg disabled:opacity-40"
           >
-            Passer
+            {t("skip")}
           </button>
         </div>
 

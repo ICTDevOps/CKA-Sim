@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
+import { localized, localizedArray, type Locale } from "@/lib/questions/types";
 import type { Question } from "@/lib/questions";
 
 interface QuestionCardProps {
@@ -10,15 +12,6 @@ interface QuestionCardProps {
   onRevealHint: () => void;
 }
 
-const DOMAIN_LABEL: Record<string, string> = {
-  "cluster-architecture": "Architecture & RBAC",
-  "workloads-scheduling": "Workloads & Scheduling",
-  "services-networking": "Services & Networking",
-  storage: "Storage",
-  troubleshooting: "Troubleshooting",
-  other: "Autre"
-};
-
 export function QuestionCard({
   question,
   index,
@@ -26,30 +19,38 @@ export function QuestionCard({
   hintsRevealed,
   onRevealHint
 }: QuestionCardProps) {
-  const hints = question.hints ?? [];
+  const locale = useLocale() as Locale;
+  const t = useTranslations("question");
+  const tDomain = useTranslations("question.domains");
+
+  const hints = localizedArray(question.hints, locale);
+  const scenario = localized(question.scenario, locale);
+
   return (
     <article className="space-y-3 rounded-lg border border-terminal-dim/40 bg-black/30 p-4">
       <header className="flex flex-wrap items-center gap-2 text-xs text-terminal-dim">
         <span className="rounded bg-terminal-dim/20 px-2 py-0.5">
-          Q {index + 1}/{total}
+          {t("indexLabel", { index: index + 1, total })}
         </span>
-        <span>{DOMAIN_LABEL[question.domain] ?? question.domain}</span>
-        <span aria-label={`Difficulté ${question.difficulty} sur 5`}>
+        <span>{tDomain(question.domain)}</span>
+        <span aria-label={t("difficultyAria", { n: question.difficulty })}>
           {"★".repeat(question.difficulty)}
           <span className="opacity-30">
             {"★".repeat(5 - question.difficulty)}
           </span>
         </span>
-        {question.k8sVersion && <span>k8s v{question.k8sVersion}</span>}
+        {question.k8sVersion && (
+          <span>{t("k8sVersion", { version: question.k8sVersion })}</span>
+        )}
       </header>
       <p className="text-base leading-relaxed text-terminal-fg">
-        {question.scenario}
+        {scenario}
       </p>
       {hints.length > 0 && (
         <div className="space-y-1 text-sm">
           {hints.slice(0, hintsRevealed).map((h, i) => (
             <p key={i} className="text-terminal-accent">
-              💡 {h}
+              {t("hintIcon")} {h}
             </p>
           ))}
           {hintsRevealed < hints.length && (
@@ -58,8 +59,10 @@ export function QuestionCard({
               onClick={onRevealHint}
               className="text-xs text-terminal-dim underline hover:text-terminal-fg"
             >
-              Révéler un indice ({hintsRevealed}/{hints.length}, pénalité au
-              score)
+              {t("revealHint", {
+                revealed: hintsRevealed,
+                total: hints.length
+              })}
             </button>
           )}
         </div>

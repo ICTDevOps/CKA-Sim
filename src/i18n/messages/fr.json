@@ -1,0 +1,102 @@
+{
+  "common": {
+    "appName": "CKA-Sim",
+    "appAbbr": "Certified Kubernetes Administrator",
+    "back": "Retour",
+    "home": "Accueil",
+    "exit": "Quitter"
+  },
+  "home": {
+    "tagline": "Simulateur de dextérité pour la certification <abbr>CKA</abbr>.",
+    "intro": "Pas de cluster à monter, pas d'examen blanc à 50 €. Juste : un scénario, une commande, un chrono.",
+    "whyTitle": "Pourquoi un simulateur de dextérité ?",
+    "whyP1": "Au CKA, tu as 2 h pour ~15-20 tâches sur cluster réel. La vitesse de frappe kubectl (alias <c>k</c>, <c>--dry-run=client -o yaml</c>, <c>-n</c>, JSONPath…) fait la différence entre réussir et tomber à court de temps.",
+    "whyP2": "Cet outil entraîne ce réflexe précis. Plus tard, il s'étendra à shell et vi (les autres goulots silencieux du CKA).",
+    "startSession": "Démarrer une session",
+    "viewDashboard": "Voir mon dashboard",
+    "questionCount": "{count} questions disponibles · {limit}s par question",
+    "footerStatus": "Statut : Sprint 2 atteint (kubectl + persistance).",
+    "sourceLink": "Code source",
+    "roadmapLink": "Roadmap"
+  },
+  "session": {
+    "promptPlaceholder": "kubectl ...",
+    "promptAriaLabel": "Commande à exécuter",
+    "skip": "Passer",
+    "submitHint": "Entrée pour valider · Échap-équivalent : bouton « Passer »",
+    "scoreboard": "{correct} ✓ · {wrong} ✗"
+  },
+  "question": {
+    "indexLabel": "Q {index}/{total}",
+    "difficultyAria": "Difficulté {n} sur 5",
+    "k8sVersion": "k8s v{version}",
+    "hintIcon": "💡",
+    "revealHint": "Révéler un indice ({revealed}/{total}, pénalité au score)",
+    "domains": {
+      "cluster-architecture": "Architecture & RBAC",
+      "workloads-scheduling": "Workloads & Scheduling",
+      "services-networking": "Services & Networking",
+      "storage": "Storage",
+      "troubleshooting": "Troubleshooting",
+      "other": "Autre"
+    }
+  },
+  "feedback": {
+    "correct": "✓ Correct.",
+    "incorrect": "✗ Pas tout à fait.",
+    "yourInput": "Ta saisie :",
+    "expected": "Commande attendue :"
+  },
+  "score": {
+    "headline": "Score : {correct} / {total} ({percent}%)",
+    "verdictExcellent": "Excellent — tu es prêt pour ce style de question.",
+    "verdictGood": "Pas mal. Quelques zones à retravailler.",
+    "verdictWork": "Il y a du chemin, mais c'est pour ça que tu t'entraînes.",
+    "totalTime": "Temps total",
+    "averageTime": "Temps moyen / question",
+    "perDomain": "Performance par domaine",
+    "replay": "Rejouer",
+    "viewDashboard": "Voir le dashboard",
+    "backHome": "Retour à l'accueil"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Ta progression sur les {count} dernières sessions.",
+    "emptyTitle": "Rien pour le moment.",
+    "empty": "Pas encore de session terminée. Lance-en une et reviens ici pour voir ta progression.",
+    "newSession": "Nouvelle session",
+    "exportData": "Exporter",
+    "stats": {
+      "sessions": "Sessions",
+      "correctRate": "Taux de réussite",
+      "averageTime": "Temps moyen",
+      "streak": "Streak",
+      "perQuestion": "par question",
+      "streakDays": "{n} j",
+      "streakKeep": "🔥 continue",
+      "streakStart": "joue tous les jours"
+    },
+    "scoreCurveTitle": "Score sur les {count} dernières sessions",
+    "heatmapTitle": "Performance par domaine × difficulté",
+    "topMissedTitle": "Top 10 questions à retravailler",
+    "recentTitle": "Sessions récentes",
+    "topMissedEmpty": "Aucune question ratée pour le moment. 🎯",
+    "scoreCurveEmpty": "Pas encore de données."
+  },
+  "about": {
+    "title": "À propos & Roadmap",
+    "intro": "CKA-Sim est un simulateur de dextérité <strong>local-first</strong> pour préparer la certification CKA. La validation des commandes est déterministe (regex) ; un tuteur IA (Claude OAuth ou OpenRouter) arrivera en couche d'enrichissement, ancré sur la documentation officielle via RAG.",
+    "roadmapTitle": "Roadmap",
+    "sprint1": "Sprint 1 — Dextérité kubectl pure : scénario → commande → chrono. Validation regex. Fait.",
+    "sprint2": "Sprint 2 (en cours) — Persistance : runs/attempts SQLite + dashboard perso.",
+    "sprint3": "Sprint 3 — Tuteur IA (Claude OAuth + OpenRouter), feedback post-réponse, sans RAG (peut halluciner).",
+    "sprint4": "Sprint 4 — RAG ancré sur la doc officielle (sqlite-vec + embeddings locaux/OpenRouter), citations dans les réponses.",
+    "sprint5": "Sprint 5 — Extensions shell et vi (codemirror-vim), avec scoring keystroke-efficiency.",
+    "sprint6": "Sprint 6 — Sources web custom + UI admin d'ingestion."
+  },
+  "language": {
+    "switchTo": "Passer en {locale}",
+    "english": "English",
+    "french": "Français"
+  }
+}

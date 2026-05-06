@@ -1,10 +1,9 @@
 /**
  * Types décrivant une question du simulateur.
  *
- * Le schéma est conçu pour évoluer : au MVP on n'utilise que `kubectl` avec une
- * validation par patterns regex (`acceptedPatterns`). Les catégories `shell` et
- * `vi` sont déjà prévues dans le type pour préparer les sprints suivants sans
- * casser la compatibilité.
+ * Texte bilingue : tout champ user-facing (énoncé, hints, explication) est
+ * stocké comme `{ en, fr }`. Les champs « langue-neutres » — id, regex,
+ * commande canonique — restent des chaînes simples.
  */
 
 export type QuestionCategory = "kubectl" | "shell" | "vi";
@@ -17,21 +16,50 @@ export type CkaDomain =
   | "troubleshooting"
   | "other";
 
+export type Locale = "en" | "fr";
+
+export interface LocalizedString {
+  en: string;
+  fr: string;
+}
+
+export interface LocalizedStringArray {
+  en: string[];
+  fr: string[];
+}
+
+/**
+ * Selects the right text for the active locale, falling back to English if a
+ * translation is missing. Tolerates the legacy plain-string format that was
+ * used before the bilingual migration: a string is treated as both EN and FR.
+ */
+export function localized(
+  value: LocalizedString | string | undefined,
+  locale: Locale
+): string {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[locale] ?? value.en ?? "";
+}
+
+export function localizedArray(
+  value: LocalizedStringArray | string[] | undefined,
+  locale: Locale
+): string[] {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  return value[locale] ?? value.en ?? [];
+}
+
 export interface BaseQuestion {
   id: string;
   category: QuestionCategory;
   domain: CkaDomain;
-  /** Énoncé affiché à l'utilisateur. */
-  scenario: string;
-  /** Difficulté indicative de 1 (très facile) à 5 (expert). */
+  scenario: LocalizedString;
   difficulty: 1 | 2 | 3 | 4 | 5;
-  /** Indices que l'utilisateur peut révéler (pénalité au score). */
-  hints?: string[];
-  /** Référence(s) documentaire(s) — utilisé plus tard par le RAG. */
+  hints?: LocalizedStringArray;
   docUrls?: string[];
-  /** Version de Kubernetes ciblée (informatif). */
   k8sVersion?: string;
-  /** Tags libres pour filtrer (`rbac`, `pods`, `networking`, ...). */
   tags?: string[];
 }
 
@@ -39,16 +67,9 @@ export interface CommandQuestion extends BaseQuestion {
   category: "kubectl" | "shell";
   challenge: {
     type: "command";
-    /**
-     * Liste de regex (en string, compilées au runtime avec le flag `i` par
-     * défaut). Une réponse est correcte si elle matche AU MOINS un pattern.
-     * Toujours ancrer avec `^...$` pour éviter les faux positifs.
-     */
     acceptedPatterns: string[];
-    /** Commande "canonique" à afficher dans la correction. */
     expected: string;
-    /** Explication courte montrée après réponse. */
-    explanation?: string;
+    explanation?: LocalizedString;
   };
 }
 
@@ -57,17 +78,14 @@ export interface ViQuestion extends BaseQuestion {
   challenge: {
     type: "vi";
     initialBuffer: string;
-    /** Buffer(s) considéré(s) comme correct(s) après édition. */
     expectedBuffer: string | string[];
-    /** Nombre minimal de keystrokes pour le scoring d'efficacité. */
     optimalKeystrokes?: number;
-    explanation?: string;
+    explanation?: LocalizedString;
   };
 }
 
 export type Question = CommandQuestion | ViQuestion;
 
-/** Garde de type pratique pour la phase MVP. */
 export function isCommandQuestion(q: Question): q is CommandQuestion {
   return q.challenge.type === "command";
 }
