@@ -1,120 +1,120 @@
 # Roadmap
 
-Chaque sprint produit quelque chose d'**utilisable seul**. On n'attaque pas le
-suivant tant que le précédent n'apporte pas une vraie valeur en l'état.
+> 🇬🇧 English version · [🇫🇷 Version française](./ROADMAP.fr.md)
 
-## Sprint 1 — Squelette + dextérité kubectl pure ✅
+Each sprint ships something **usable on its own**. We don't move on to the
+next one unless the current one delivers real value as-is.
 
-**Objectif :** "tape la commande, ça te dit oui/non, chrono".
+## Sprint 1 — Skeleton + pure kubectl dexterity ✅
+
+**Goal:** "type the command, get yes/no, with a chrono."
 
 - [x] Bootstrap Next.js + TypeScript + Tailwind
-- [x] Schéma de question (`Question`, `CommandQuestion`, `ViQuestion`)
-- [x] `RegexValidator` déterministe
-- [x] 20 questions seed couvrant les 5 domaines CKA
-- [x] Moteur de session pur (state machine)
-- [x] UI : home, prompt, timer, question card, feedback, score summary
-- [x] Documentation initiale (README, ARCHITECTURE, QUESTION_SCHEMA)
+- [x] Question schema (`Question`, `CommandQuestion`, `ViQuestion`)
+- [x] Deterministic `RegexValidator`
+- [x] 20 seed questions across the 5 CKA domains
+- [x] Pure session engine (state machine)
+- [x] UI: home, prompt, timer, question card, feedback, score summary
+- [x] Initial documentation (README, ARCHITECTURE, QUESTION_SCHEMA)
 
-**Livrable :** une app utilisable pour s'entraîner aux commandes kubectl.
+**Deliverable:** an app you can use to drill kubectl commands.
 
 ---
 
-## Sprint 2 — Persistance & dashboard perso
+## Sprint 2 — Persistence & personal dashboard
 
-**Objectif :** garder un historique des sessions et identifier les points
-faibles.
+**Goal:** keep session history and identify weak spots.
 
-- [ ] Setup SQLite (`better-sqlite3` côté serveur)
-- [ ] Schéma `users / runs / attempts`
-- [ ] API routes : `POST /api/runs`, `POST /api/runs/:id/attempts`,
+- [ ] SQLite setup (`better-sqlite3` server-side)
+- [ ] `users / runs / attempts` schema
+- [ ] API routes: `POST /api/runs`, `POST /api/runs/:id/attempts`,
       `PATCH /api/runs/:id/end`, `GET /api/stats/me`
-- [ ] Page `/dashboard` : courbe de score, heatmap catégorie × difficulté,
-      streak, top 10 questions ratées
-- [ ] Anti-cheat léger (validation côté serveur, plausibilité des temps)
-- [ ] Export JSON de l'historique (`GET /api/me/export`)
+- [ ] `/dashboard` page: score curve, category × difficulty heatmap,
+      streak, top 10 most-missed questions
+- [ ] Light anti-cheat (server-side validation, plausibility checks)
+- [ ] JSON export of history (`GET /api/me/export`)
 
-**Livrable :** l'utilisateur voit sa progression dans le temps.
-
----
-
-## Sprint 3 — Tuteur IA (sans RAG)
-
-**Objectif :** explication post-réponse, sans pour autant exiger le RAG dès
-le départ.
-
-- [ ] Interface `LLMProvider` avec capability flags
-- [ ] `ClaudeOAuthProvider` (flow OAuth claude.ai)
-- [ ] `OpenRouterProvider` (clé API utilisateur, sélection du modèle)
-- [ ] Settings page : choix du provider, gestion des clés (chiffrement local)
-- [ ] Mode "Entraînement" qui appelle le tuteur après chaque réponse
-- [ ] Mode "Examen" qui désactive l'IA (chrono strict)
-- [ ] Limitation hallucination : prompt système strict, "ne réponds pas si tu
-      n'es pas sûr"
-
-**Limitation assumée :** les explications peuvent être imprécises tant que le
-RAG n'est pas branché. C'est documenté dans l'UI.
-
-**Livrable :** le tuteur explique pourquoi une commande est fausse et propose
-des alternatives idiomatiques.
+**Deliverable:** the user sees their progress over time.
 
 ---
 
-## Sprint 4 — RAG ancré sur la doc officielle
+## Sprint 3 — AI tutor (without RAG)
 
-**Objectif :** zéro hallucination, citations cliquables.
+**Goal:** post-answer explanation, without requiring RAG up front.
 
-- [ ] Pipeline d'ingestion : fichiers locaux + git (kubernetes/website)
-- [ ] Chunking par sections H2/H3
+- [ ] `LLMProvider` interface with capability flags
+- [ ] `ClaudeOAuthProvider` (claude.ai OAuth flow)
+- [ ] `OpenRouterProvider` (user API key, model selection)
+- [ ] Settings page: provider choice, key management (local encryption)
+- [ ] "Training" mode that calls the tutor after every answer
+- [ ] "Exam" mode that disables AI (strict chrono)
+- [ ] Hallucination mitigation: strict system prompt, "don't answer if
+      unsure"
+
+**Acknowledged limitation:** explanations may be imprecise until RAG is
+plugged in. This is documented in the UI.
+
+**Deliverable:** the tutor explains why a command is wrong and proposes
+idiomatic alternatives.
+
+---
+
+## Sprint 4 — Doc-grounded RAG
+
+**Goal:** zero hallucinations, clickable citations.
+
+- [ ] Ingestion pipeline: local files + git (kubernetes/website)
+- [ ] Chunking by H2/H3 sections
 - [ ] `EmbeddingProvider` (Local bge-small + OpenRouter)
-- [ ] Index multi-modèles (`kb-bge-small.db`, `kb-openai-3-small.db`, ...)
-- [ ] Validation au boot (cohérence config ↔ index)
-- [ ] Pipeline retrieval + reranking + LLM avec citations forcées
-- [ ] UI : citations sourcées sous chaque réponse IA
+- [ ] Multi-model indexes (`kb-bge-small.db`, `kb-openai-3-small.db`, ...)
+- [ ] Boot validation (config ↔ index consistency)
+- [ ] Retrieval + reranking + LLM with forced citations
+- [ ] UI: sourced citations under every AI answer
 
-**Livrable :** le tuteur ne dit plus rien qu'il ne puisse sourcer dans la doc.
-
----
-
-## Sprint 5 — Extensions shell + vi
-
-**Objectif :** étendre la dextérité aux deux autres goulots du CKA.
-
-- [ ] Catégorie `shell` : 30 questions sur grep/awk/sed/jq/yq/systemctl/...
-- [ ] Catégorie `vi` : éditeur codemirror-vim intégré
-- [ ] Validation `vi` : comparaison de buffer attendu (avec multi-cibles)
-- [ ] **Scoring keystroke-efficiency** (ratio `optimalKeystrokes / actual`)
-- [ ] Filtres de session par catégorie
-
-**Livrable :** un entraînement complet qui couvre kubectl + shell + vi.
+**Deliverable:** the tutor never says anything it can't source from the docs.
 
 ---
 
-## Sprint 6 — Sources web custom + UI admin
+## Sprint 5 — Shell + vi extensions
 
-**Objectif :** que l'utilisateur puisse enrichir la base de connaissance avec
-ses propres sources.
+**Goal:** extend dexterity to the two other CKA bottlenecks.
 
-- [ ] Schéma `sources` en DB
-- [ ] Crawler avec respect de `robots.txt`, User-Agent identifiable, rate
+- [ ] `shell` category: 30 questions on grep/awk/sed/jq/yq/systemctl/...
+- [ ] `vi` category: integrated codemirror-vim editor
+- [ ] `vi` validation: target buffer comparison (with multi-targets)
+- [ ] **Keystroke-efficiency scoring** (`optimalKeystrokes / actual` ratio)
+- [ ] Per-category session filters
+
+**Deliverable:** complete training across kubectl + shell + vi.
+
+---
+
+## Sprint 6 — Custom web sources + admin UI
+
+**Goal:** let users enrich the knowledge base with their own sources.
+
+- [ ] DB `sources` schema
+- [ ] Crawler with `robots.txt` compliance, identifiable User-Agent, rate
       limiting
-- [ ] Détection incrémentale via `etag` / `If-Modified-Since` / `content_hash`
-- [ ] Extraction propre via Mozilla Readability + turndown
-- [ ] Page `Settings → Sources de connaissance`
-- [ ] Séparation `kb-bundled.db` (image) + `kb-user.db` (volume)
-- [ ] Scheduler interne au container (`node-cron`)
+- [ ] Incremental detection via `etag` / `If-Modified-Since` /
+      `content_hash`
+- [ ] Clean extraction via Mozilla Readability + turndown
+- [ ] `Settings → Knowledge sources` page
+- [ ] Split `kb-bundled.db` (image) + `kb-user.db` (volume)
+- [ ] In-container scheduler (`node-cron`)
 
-**Livrable :** l'utilisateur peut indexer son blog, sa doc d'équipe, etc.
+**Deliverable:** the user can index their blog, team docs, etc.
 
 ---
 
-## Au-delà
+## Beyond
 
-Idées en file d'attente, à prioriser selon les retours :
+Backlog ideas, prioritized based on feedback:
 
-- **Mode lab** : exécution réelle dans un cluster `kind` éphémère
-- **Multi-utilisateur + leaderboard** (Niveau 2 du schéma persistance)
-- **Auth** : magic link email ou OAuth GitHub
-- **Génération de questions assistée par LLM** validées en CI sur cluster
-  `kind` (PR auto)
-- **Extensions** : CKAD, CKS, Linux, Git, Terraform, AWS CLI (même mécanique)
-- **Mobile-friendly** : exporter le mode "flashcards" pour les transports
+- **Lab mode**: real execution in an ephemeral `kind` cluster
+- **Multi-user + leaderboard** (Level 2 of the persistence schema)
+- **Auth**: email magic link or GitHub OAuth
+- **AI-assisted question generation** validated in CI on a `kind` cluster
+  (auto PRs)
+- **Extensions**: CKAD, CKS, Linux, Git, Terraform, AWS CLI (same engine)
+- **Mobile-friendly**: export a "flashcards" mode for commuting

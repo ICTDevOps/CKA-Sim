@@ -1,50 +1,52 @@
 # CKA-Sim
 
-> Simulateur de **dextérité kubectl/shell/vi** pour préparer la certification
-> [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/).
+> 🇬🇧 English version · [🇫🇷 Version française](./README.fr.md)
 
-Pas de cluster à monter, pas d'examen blanc à 50 €. Juste : un scénario, une
-commande, un chrono. L'objectif est d'entraîner les **réflexes de frappe** qui
-font la différence entre réussir le CKA dans le temps imparti et tomber court.
+> A **kubectl/shell/vi dexterity simulator** to prepare for the
+> [Certified Kubernetes Administrator (CKA)](https://www.cncf.io/certification/cka/)
+> certification.
 
----
-
-## 🎯 Pourquoi ce projet
-
-Le CKA, c'est 2 h pour ~15-20 tâches sur cluster réel. Beaucoup d'échecs ne
-viennent pas d'un manque de connaissance Kubernetes mais d'un manque de
-vitesse :
-
-- mauvais usage des alias (`k` au lieu de `kubectl`)
-- `--dry-run=client -o yaml` pas mémorisé
-- contexte/namespace pas fixé une bonne fois pour toutes
-- JSONPath improvisé dans la panique
-- édition vi maladroite qui mange les minutes
-
-Les plateformes existantes (Killer.sh, KodeKloud) testent surtout la
-**résolution de problème**. Cet outil cible la **dextérité pure**, le réflexe
-moteur qui s'acquiert par la répétition courte et chronométrée.
+No cluster to spin up, no €50 mock exam. Just: a scenario, a command, a
+chrono. The goal is to drill the **typing reflexes** that make the difference
+between passing the CKA in time and running out of it.
 
 ---
 
-## ✨ Ce que fait l'outil aujourd'hui (Sprint 1 — MVP)
+## 🎯 Why this project
 
-- 20 questions kubectl couvrant les 5 domaines officiels du CKA
-- Chrono de 60 s par question, score en fin de session
-- Validation **déterministe** par regex (gère les variantes courantes :
-  `-n`/`--namespace`, position des flags, alias `k`/`kubectl`, etc.)
-- Indices révélables avec pénalité
-- Récapitulatif par domaine pour identifier les points faibles
-- 100 % local-first : aucune donnée n'est envoyée nulle part
+The CKA is 2 hours for ~15-20 tasks on a real cluster. Many failures are not
+about lacking Kubernetes knowledge — they're about lacking speed:
 
-> 🚧 Pas encore : tuteur IA, RAG, persistance, shell/vi, leaderboard.
-> Voir [ROADMAP](./docs/ROADMAP.md).
+- not using the `k` alias instead of `kubectl`
+- forgetting `--dry-run=client -o yaml`
+- typing `-n <ns>` on every command instead of fixing the context once
+- improvising JSONPath under pressure
+- clumsy vi editing eating up the minutes
+
+Existing platforms (Killer.sh, KodeKloud) mostly drill **problem-solving**.
+This tool targets **pure dexterity**, the motor reflex that comes from short,
+chronometered repetition.
 
 ---
 
-## 🚀 Démarrage rapide
+## ✨ What it does today (Sprint 1 — MVP)
 
-Prérequis : **Node.js ≥ 22**.
+- 20 kubectl questions covering all 5 official CKA domains
+- 60-second chrono per question, end-of-session score
+- **Deterministic** validation via regex (handles common variants:
+  `-n`/`--namespace`, flag order, `k`/`kubectl` alias, etc.)
+- Hint system with score penalty
+- Per-domain breakdown to identify weak spots
+- 100% local-first: no data is sent anywhere
+
+> 🚧 Not yet: AI tutor, RAG, persistence, shell/vi, leaderboard.
+> See the [ROADMAP](./docs/ROADMAP.md).
+
+---
+
+## 🚀 Quick start
+
+Requirements: **Node.js ≥ 22**.
 
 ```bash
 git clone https://github.com/ictdevops/cka-sim.git
@@ -53,62 +55,62 @@ npm install
 npm run dev
 ```
 
-Ouvre <http://localhost:3000>. Tape `Entrée` pour valider chaque commande.
+Open <http://localhost:3000>. Press `Enter` to submit each command.
 
-### Scripts disponibles
+### Available scripts
 
 | Script              | Description                              |
 | ------------------- | ---------------------------------------- |
-| `npm run dev`       | Serveur de dev avec HMR                  |
-| `npm run build`     | Build de production                      |
-| `npm start`         | Démarre le build de production           |
-| `npm run typecheck` | Vérifie les types TypeScript             |
-| `npm run lint`      | Linter Next.js                           |
+| `npm run dev`       | Dev server with HMR                      |
+| `npm run build`     | Production build                         |
+| `npm start`         | Start the production build               |
+| `npm run typecheck` | Run TypeScript type checking             |
+| `npm run lint`      | Run Next.js linter                       |
 
 ---
 
-## 🧱 Architecture (vue rapide)
+## 🧱 Architecture (overview)
 
 ```
 src/
-├── app/                    Pages Next.js (App Router)
-│   ├── page.tsx            Accueil
+├── app/                    Next.js pages (App Router)
+│   ├── page.tsx            Home
 │   ├── about/page.tsx      Roadmap
-│   └── session/page.tsx    Session active
+│   └── session/page.tsx    Active session
 ├── components/             UI (Prompt, Timer, QuestionCard, ...)
 ├── lib/
-│   ├── questions/          Types + chargement des questions
-│   ├── validators/         Validation déterministe (regex)
-│   └── session/            Moteur de session pur (state machine)
+│   ├── questions/          Types + question loading
+│   ├── validators/         Deterministic validation (regex)
+│   └── session/            Pure session engine (state machine)
 └── data/
     └── questions/
-        └── kubectl.json    Base de questions seed
+        └── kubectl.json    Seed question bank
 ```
 
-Le **moteur de session** (`lib/session/engine.ts`) est volontairement *pur* :
-des fonctions `(state, event) => state` sans I/O, faciles à tester et à
-brancher sur un store quand on en aura besoin.
+The **session engine** (`lib/session/engine.ts`) is intentionally *pure*:
+`(state, event) => state` functions, no I/O, easy to test and to plug into a
+store when needed.
 
-Le **validateur** est une interface (`lib/validators/types.ts`) avec une
-implémentation regex au MVP (`RegexValidator`). On pourra ajouter un
-`SemanticValidator` (parsing AST) ou un `ExecutionValidator` (cluster `kind`)
-sans toucher au reste.
+The **validator** is an interface (`lib/validators/types.ts`) with a regex
+implementation in the MVP (`RegexValidator`). A `SemanticValidator` (AST
+parsing) or an `ExecutionValidator` (`kind` cluster) can be added later
+without touching the rest.
 
-📖 Détails dans [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+📖 Details in [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md).
 
 ---
 
-## 📝 Ajouter ou éditer des questions
+## 📝 Add or edit questions
 
-Les questions sont dans `src/data/questions/kubectl.json`. Chaque question est
-auto-décrivante :
+Questions live in `src/data/questions/kubectl.json`. Each question is
+self-describing:
 
 ```jsonc
 {
   "id": "k-pods-001",
   "category": "kubectl",
   "domain": "workloads-scheduling",
-  "scenario": "Lister tous les pods du namespace 'web'.",
+  "scenario": "List all pods in the 'web' namespace.",
   "difficulty": 1,
   "challenge": {
     "type": "command",
@@ -121,49 +123,48 @@ auto-décrivante :
 }
 ```
 
-📖 Schéma complet et conventions :
+📖 Full schema and conventions:
 [docs/QUESTION_SCHEMA.md](./docs/QUESTION_SCHEMA.md).
 
 ---
 
-## 🗺 Roadmap résumée
+## 🗺 Roadmap (summary)
 
-| Sprint | Objectif                                                       | Statut    |
-| -----: | -------------------------------------------------------------- | --------- |
-|      1 | Dextérité kubectl pure (validation regex, chrono)              | ✅ MVP    |
-|      2 | Persistance : runs/attempts SQLite + dashboard perso           | À venir   |
-|      3 | Tuteur IA (Claude OAuth + OpenRouter), feedback post-réponse   | À venir   |
-|      4 | RAG ancré sur la doc K8s (sqlite-vec + embeddings)             | À venir   |
-|      5 | Extensions shell + vi (codemirror-vim, scoring efficacité)     | À venir   |
-|      6 | Sources web custom + UI admin d'ingestion                      | À venir   |
+| Sprint | Goal                                                              | Status    |
+| -----: | ----------------------------------------------------------------- | --------- |
+|      1 | Pure kubectl dexterity (regex validation, chrono)                 | ✅ MVP    |
+|      2 | Persistence: SQLite runs/attempts + personal dashboard            | Upcoming  |
+|      3 | AI tutor (Claude OAuth + OpenRouter), post-answer feedback        | Upcoming  |
+|      4 | Doc-grounded RAG (sqlite-vec + embeddings)                        | Upcoming  |
+|      5 | Shell + vi extensions (codemirror-vim, keystroke-efficiency)      | Upcoming  |
+|      6 | Custom web sources + admin ingestion UI                           | Upcoming  |
 
-📖 Détails par sprint : [docs/ROADMAP.md](./docs/ROADMAP.md).
-
----
-
-## 🔐 Vie privée & licences
-
-- **Aucun tracking, aucune télémétrie**, aucune donnée envoyée à un tiers au
-  Sprint 1.
-- Les futurs appels IA seront **opt-in**, BYOK (clé OpenRouter) ou via OAuth
-  Claude — toujours côté utilisateur.
-- Les futures sources documentaires (kubernetes.io, etc.) sont
-  redistribuables sous leur licence d'origine (kubernetes.io = CC BY 4.0).
-  Toute citation IA renverra à l'URL source pour traçabilité.
+📖 Per-sprint details: [docs/ROADMAP.md](./docs/ROADMAP.md).
 
 ---
 
-## 🤝 Contribuer
+## 🔐 Privacy & licensing
 
-PRs bienvenues, en particulier sur :
-
-- l'ajout de questions (relire
-  [docs/QUESTION_SCHEMA.md](./docs/QUESTION_SCHEMA.md))
-- le rapport de patterns acceptés manquants pour des commandes valides
-  rejetées à tort (ouvre une issue avec la commande rejetée)
+- **No tracking, no telemetry**, no data sent to third parties in Sprint 1.
+- Future AI calls will be **opt-in**, BYOK (OpenRouter API key) or via
+  Claude OAuth — always client-side.
+- Future documentation sources (kubernetes.io, etc.) are redistributable
+  under their original license (kubernetes.io = CC BY 4.0). Every AI
+  citation will link back to the source URL for traceability.
 
 ---
 
-## 📜 Licence
+## 🤝 Contributing
 
-À définir (probablement MIT ou Apache 2.0).
+PRs welcome, especially for:
+
+- adding questions (please read
+  [docs/QUESTION_SCHEMA.md](./docs/QUESTION_SCHEMA.md) first)
+- reporting missing accepted patterns when valid commands are wrongly
+  rejected (open an issue with the rejected command)
+
+---
+
+## 📜 License
+
+To be defined (likely MIT or Apache 2.0).

@@ -1,124 +1,128 @@
-# Schéma des questions
+# Question schema
 
-Référence des champs et conventions à respecter pour ajouter ou modifier une
+> 🇬🇧 English version · [🇫🇷 Version française](./QUESTION_SCHEMA.fr.md)
+
+Reference for the fields and conventions to respect when adding or editing a
 question.
 
-## Emplacement
+## Location
 
-- `src/data/questions/kubectl.json` — questions kubectl
-- `src/data/questions/shell.json` — questions shell (Sprint 5)
-- `src/data/questions/vi.json` — questions vi (Sprint 5)
+- `src/data/questions/kubectl.json` — kubectl questions
+- `src/data/questions/shell.json` — shell questions (Sprint 5)
+- `src/data/questions/vi.json` — vi questions (Sprint 5)
 
-Les types TypeScript de référence sont dans `src/lib/questions/types.ts`.
+The TypeScript reference types live in `src/lib/questions/types.ts`.
 
-## Structure d'une question commande
+## Structure of a command question
 
 ```jsonc
 {
-  // Identifiant stable, format : <category>-<topic>-<NNN>
+  // Stable identifier, format: <category>-<topic>-<NNN>
   "id": "k-pods-001",
 
   // "kubectl" | "shell" | "vi"
   "category": "kubectl",
 
-  // Domaine officiel CKA. Permet le filtrage et le scoring par domaine.
-  // Valeurs : "cluster-architecture" | "workloads-scheduling"
-  //         | "services-networking" | "storage" | "troubleshooting" | "other"
+  // Official CKA domain. Enables filtering and per-domain scoring.
+  // Values: "cluster-architecture" | "workloads-scheduling"
+  //       | "services-networking" | "storage" | "troubleshooting" | "other"
   "domain": "workloads-scheduling",
 
-  // Énoncé tel qu'affiché à l'utilisateur. Contexte concret > formulation
-  // abstraite. Précise le namespace, les noms de ressources, etc.
-  "scenario": "Lister tous les pods du namespace 'web'.",
+  // Statement as shown to the user. Concrete context > abstract phrasing.
+  // Always specify the namespace, resource names, etc.
+  "scenario": "List all pods in the 'web' namespace.",
 
-  // 1 (très facile) à 5 (expert).
-  // 1-2 : commandes courtes, peu de flags
-  // 3   : un flag tactique (--dry-run, --sort-by, JSONPath simple)
-  // 4-5 : RBAC subtil, JSONPath avancé, drain/cordon, troubleshooting
+  // 1 (very easy) to 5 (expert).
+  // 1-2: short commands, few flags
+  // 3  : one tactical flag (--dry-run, --sort-by, simple JSONPath)
+  // 4-5: subtle RBAC, advanced JSONPath, drain/cordon, troubleshooting
   "difficulty": 1,
 
-  // Tags libres pour filtrage. Facultatifs mais recommandés.
+  // Free-form tags for filtering. Optional but recommended.
   "tags": ["pods", "get"],
 
-  // Version K8s ciblée (informatif).
+  // Targeted K8s version (informational).
   "k8sVersion": "1.31",
 
-  // Indices que l'utilisateur peut révéler. Pénalité au score (à venir).
-  "hints": ["Pense à `--dry-run=client` et `-o yaml`."],
+  // Hints the user can reveal. Score penalty (upcoming).
+  "hints": ["Think `--dry-run=client` and `-o yaml`."],
 
-  // URLs de référence — utilisées plus tard par le RAG pour borner le
-  // retrieve. Recommandé sur les questions non triviales.
+  // Reference URLs — used later by RAG to scope retrieve. Recommended on
+  // non-trivial questions.
   "docUrls": [
     "https://kubernetes.io/docs/reference/kubectl/cheatsheet/"
   ],
 
-  // Cœur de la question.
+  // The challenge itself.
   "challenge": {
     "type": "command",
 
-    // Forme canonique attendue, affichée dans le feedback "commande
-    // attendue". Doit être la commande la plus idiomatique.
+    // Canonical expected form, shown in the "expected command" feedback.
+    // Must be the most idiomatic command.
     "expected": "kubectl get pods -n web",
 
-    // Liste de regex acceptées. Une réponse est correcte si elle matche
-    // AU MOINS un pattern. Voir conventions ci-dessous.
+    // List of accepted regex. A response is correct if it matches AT LEAST
+    // one pattern. See conventions below.
     "acceptedPatterns": [
       "^(kubectl|k)\\s+get\\s+(pods?|po)\\s+(-n\\s+web|--namespace[= ]web)$"
     ],
 
-    // Affichée dans le feedback. Concis (1-2 phrases). Insiste sur
-    // l'astuce d'examen pertinente.
-    "explanation": "`get pods` ou `get po` (alias) acceptent `-n` ou `--namespace`."
+    // Shown in the feedback. Concise (1-2 sentences). Highlights the
+    // relevant exam trick.
+    "explanation": "`get pods` or `get po` (alias) accept `-n` or `--namespace`."
   }
 }
 ```
 
-## Conventions pour `acceptedPatterns`
+## Conventions for `acceptedPatterns`
 
-### Toujours ancrer
+### Always anchor
 
 ```jsonc
-// ✅ ancré, refuse "kubectl get pods -n web && rm -rf /"
+// ✅ anchored, rejects "kubectl get pods -n web && rm -rf /"
 "^(kubectl|k)\\s+get\\s+pods?\\s+-n\\s+web$"
 
-// ❌ pas ancré, faux positifs garantis
+// ❌ not anchored, false positives guaranteed
 "(kubectl|k) get pods? -n web"
 ```
 
-### Couvrir les variantes courantes
+### Cover common variants
 
-Pour chaque commande kubectl, prévoir au minimum :
+For every kubectl command, plan at minimum:
 
-- `kubectl` ET `k` (alias usuel) → `(kubectl|k)`
-- formes pluriel/singulier des ressources → `pods?`
-- alias officiels → `(deployment|deploy|deployments)`, `(serviceaccount|sa)`,
-  `(persistentvolume|pv)`, `(endpoints|ep)`, `(namespaces?|ns)`
-- `-n <ns>` ET `--namespace <ns>` ET `--namespace=<ns>` →
+- `kubectl` AND `k` (the usual alias) → `(kubectl|k)`
+- plural/singular resource forms → `pods?`
+- official aliases → `(deployment|deploy|deployments)`,
+  `(serviceaccount|sa)`, `(persistentvolume|pv)`, `(endpoints|ep)`,
+  `(namespaces?|ns)`
+- `-n <ns>` AND `--namespace <ns>` AND `--namespace=<ns>` →
   `(-n\\s+<ns>|--namespace[= ]<ns>)`
-- ordre des flags : si la position du namespace peut varier, prévoir plusieurs
+- flag order: if the namespace position can vary, provide multiple
   patterns
 
-### Échappement JSON
+### JSON escaping
 
-Dans un fichier `.json`, chaque `\` doit être doublé :
+In a `.json` file every `\` must be doubled:
 
 ```jsonc
-// dans le JSON :  "^(kubectl|k)\\s+get\\s+pods?$"
-// la regex finale : ^(kubectl|k)\s+get\s+pods?$
+// in JSON:        "^(kubectl|k)\\s+get\\s+pods?$"
+// final regex:    ^(kubectl|k)\s+get\s+pods?$
 ```
 
-### Insensibilité à la casse
+### Case insensitivity
 
-Le validateur compile avec le flag `i`. Pas besoin de `[Kk]ubectl`.
+The validator compiles patterns with the `i` flag. No need for
+`[Kk]ubectl`.
 
-### Espaces
+### Whitespace
 
-Le validateur normalise les espaces multiples en un seul, et trimme. Les
-patterns peuvent supposer une saisie normalisée.
+The validator collapses multiple whitespace characters into one and trims.
+Patterns can assume normalized input.
 
-## Auto-test de cohérence
+## Self-test for consistency
 
-Avant de commit, vérifier que la commande `expected` matche au moins un
-pattern :
+Before committing, check that the `expected` command matches at least one
+pattern:
 
 ```bash
 node -e '
@@ -132,40 +136,40 @@ for (const q of qs) {
 process.exit(fail);'
 ```
 
-(Ce check sera bientôt automatisé en CI.)
+(This check will be automated in CI soon.)
 
-## Bons et mauvais énoncés
+## Good and bad statements
 
-### ✅ Bon
+### ✅ Good
 
-> Créer un deployment `api` avec 3 réplicas, image `nginx`, dans le namespace
-> `web`.
+> Create an `api` deployment with 3 replicas, image `nginx`, in the `web`
+> namespace.
 
-Précis : nom, image, replicas, namespace. L'utilisateur n'a pas à deviner.
+Precise: name, image, replicas, namespace. The user has nothing to guess.
 
-### ❌ Mauvais
+### ❌ Bad
 
-> Crée un deployment.
+> Create a deployment.
 
-Trop ouvert : 50 commandes différentes seraient correctes.
+Too open-ended: 50 different commands would be "correct".
 
-### ✅ Bon (avec hint)
+### ✅ Good (with hint)
 
-> Vérifier si le ServiceAccount `ci` du namespace `web` peut créer des
+> Check whether the `ci` ServiceAccount in the `web` namespace can create
 > deployments.
 >
-> Hints : `kubectl auth can-i ...`, `--as=system:serviceaccount:<ns>:<sa>`
+> Hints: `kubectl auth can-i ...`, `--as=system:serviceaccount:<ns>:<sa>`
 
-Le scénario reste précis, les hints débloquent les concepts non évidents.
+The scenario stays precise; hints unlock non-obvious concepts.
 
-## Checklist avant de proposer une question
+## Checklist before proposing a question
 
-- [ ] L'énoncé est concret (noms, namespace, replicas spécifiés)
-- [ ] La commande `expected` est l'idiomatique (alias `k`, flags courts)
-- [ ] Au moins 2 patterns acceptés (variations classiques)
-- [ ] Tous les patterns ancrés `^...$`
-- [ ] Le `\\s+` est utilisé pour les espaces (pas un simple espace)
-- [ ] Aucune backreference suspecte (les regex JS de base suffisent)
-- [ ] `domain` est l'un des 5 domaines officiels CKA + `other`
-- [ ] `difficulty` est cohérent avec la taille/complexité de la commande
-- [ ] L'auto-test `expected matche un pattern` passe
+- [ ] The statement is concrete (names, namespace, replicas specified)
+- [ ] The `expected` command is the idiomatic one (`k` alias, short flags)
+- [ ] At least 2 accepted patterns (classic variants)
+- [ ] All patterns anchored `^...$`
+- [ ] `\\s+` is used for whitespace (not a plain space)
+- [ ] No suspicious backreferences (basic JS regex is enough)
+- [ ] `domain` is one of the 5 official CKA domains + `other`
+- [ ] `difficulty` is consistent with command size/complexity
+- [ ] The `expected matches a pattern` self-test passes
