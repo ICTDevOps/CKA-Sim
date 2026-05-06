@@ -11,6 +11,16 @@ font la différence entre réussir le CKA dans le temps imparti et tomber court.
 
 ---
 
+## 📸 Aperçu
+
+| Accueil | Session — question |
+| :---: | :---: |
+| ![Accueil](./public/screenshots/01-home.png) | ![Session active](./public/screenshots/02-session-question.png) |
+| **Feedback après une bonne réponse** | **Score de fin de session** |
+| ![Feedback correct](./public/screenshots/03-session-feedback.png) | ![Récapitulatif](./public/screenshots/04-score-summary.png) |
+
+---
+
 ## 🎯 Pourquoi ce projet
 
 Le CKA, c'est 2 h pour ~15-20 tâches sur cluster réel. Beaucoup d'échecs ne

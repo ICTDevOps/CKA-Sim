@@ -12,6 +12,16 @@ between passing the CKA in time and running out of it.
 
 ---
 
+## 📸 Preview
+
+| Home | Session — question |
+| :---: | :---: |
+| ![Home page](./public/screenshots/01-home.png) | ![Active session](./public/screenshots/02-session-question.png) |
+| **Feedback after a correct answer** | **End-of-session score** |
+| ![Correct feedback](./public/screenshots/03-session-feedback.png) | ![Score summary](./public/screenshots/04-score-summary.png) |
+
+---
+
 ## 🎯 Why this project
 
 The CKA is 2 hours for ~15-20 tasks on a real cluster. Many failures are not
