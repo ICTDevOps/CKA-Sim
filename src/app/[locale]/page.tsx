@@ -56,6 +56,12 @@ export default function HomePage() {
         >
           {t("viewDashboard")}
         </Link>
+        <Link
+          href="/settings"
+          className="rounded border border-terminal-dim/60 px-5 py-3 hover:border-terminal-fg"
+        >
+          {t("settings")}
+        </Link>
         <p className="text-sm text-terminal-dim">
           {t("questionCount", { count: TOTAL, limit: 60 })}
         </p>

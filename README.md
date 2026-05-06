@@ -24,6 +24,10 @@ between passing the CKA in time and running out of it.
 
 ![Dashboard](./public/screenshots/05-dashboard.en.png)
 
+**Settings** — pick the AI tutor provider (Claude OAuth or OpenRouter), the embedding backend (local bge-small or OpenRouter), and toggle exam mode / RAG. Keys stay on your device:
+
+![Settings](./public/screenshots/06-settings.en.png)
+
 ---
 
 ## 🎯 Why this project

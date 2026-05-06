@@ -59,6 +59,20 @@ CREATE INDEX IF NOT EXISTS idx_attempts_qid_correct
   ON attempts(question_id, is_correct);
 `;
 
+const M002_USER_SETTINGS = `
+-- Per-user settings: AI provider config, RAG toggle, exam mode, etc.
+-- Designed as a simple key/value store so adding a new setting doesn't
+-- require a schema migration.
+CREATE TABLE IF NOT EXISTS user_settings (
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  key        TEXT NOT NULL,
+  value      TEXT,                              -- JSON-encoded
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (user_id, key)
+);
+`;
+
 export const MIGRATIONS: Migration[] = [
-  { name: "001-initial", sql: M001_INITIAL }
+  { name: "001-initial", sql: M001_INITIAL },
+  { name: "002-user-settings", sql: M002_USER_SETTINGS }
 ];

@@ -23,6 +23,10 @@ font la différence entre réussir le CKA dans le temps imparti et tomber court.
 
 ![Dashboard](./public/screenshots/05-dashboard.fr.png)
 
+**Paramètres** — choisis le provider IA (Claude OAuth ou OpenRouter), le backend d'embeddings (bge-small local ou OpenRouter), bascule entre mode examen et RAG. Les clés restent sur ta machine :
+
+![Paramètres](./public/screenshots/06-settings.fr.png)
+
 ---
 
 ## 🎯 Pourquoi ce projet
