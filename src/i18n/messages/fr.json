@@ -48,6 +48,15 @@
     "yourInput": "Ta saisie :",
     "expected": "Commande attendue :"
   },
+  "tutor": {
+    "title": "Tuteur IA",
+    "loading": "Réflexion…",
+    "errorPrefix": "Erreur tuteur :",
+    "settingsCta": "Ouvrir les paramètres",
+    "next": "Question suivante",
+    "skipTutor": "Passer le tuteur",
+    "providerLabel": "via {provider}"
+  },
   "score": {
     "headline": "Score : {correct} / {total} ({percent}%)",
     "verdictExcellent": "Excellent — tu es prêt pour ce style de question.",

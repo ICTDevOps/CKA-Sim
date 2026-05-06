@@ -48,6 +48,15 @@
     "yourInput": "Your input:",
     "expected": "Expected command:"
   },
+  "tutor": {
+    "title": "AI tutor",
+    "loading": "Thinking…",
+    "errorPrefix": "Tutor error:",
+    "settingsCta": "Open settings",
+    "next": "Next question",
+    "skipTutor": "Skip tutor",
+    "providerLabel": "via {provider}"
+  },
   "score": {
     "headline": "Score: {correct} / {total} ({percent}%)",
     "verdictExcellent": "Excellent — you're ready for this kind of question.",
