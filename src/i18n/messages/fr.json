@@ -14,6 +14,7 @@
     "whyP2": "Cet outil entraîne ce réflexe précis. Plus tard, il s'étendra à shell et vi (les autres goulots silencieux du CKA).",
     "startSession": "Démarrer une session",
     "viewDashboard": "Voir mon dashboard",
+    "settings": "Paramètres",
     "questionCount": "{count} questions disponibles · {limit}s par question",
     "footerStatus": "Statut : Sprint 2 atteint (kubectl + persistance).",
     "sourceLink": "Code source",
@@ -98,5 +99,44 @@
     "switchTo": "Passer en {locale}",
     "english": "English",
     "french": "Français"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Configure le tuteur IA et le provider d'embeddings pour le RAG ancré sur la doc. Toutes les clés restent sur ta machine.",
+    "saved": "Paramètres sauvegardés.",
+    "saveError": "Impossible de sauvegarder. Réessaie.",
+    "save": "Sauvegarder",
+
+    "tutorSection": "Tuteur IA",
+    "tutorEnabled": "Activer le tuteur IA",
+    "tutorEnabledHint": "Ajoute un panneau d'explication après chaque réponse. Désactivé en mode examen.",
+    "examMode": "Mode examen (pas d'IA pendant les sessions)",
+    "examModeHint": "Reproduit les conditions réelles du CKA : dextérité pure, aucune assistance.",
+
+    "providerSection": "Provider LLM",
+    "providerHint": "Choisis le modèle qui alimente le tuteur. Les deux options sont BYOK (bring-your-own-key).",
+    "providerClaude": "Claude (OAuth via ton abonnement claude.ai)",
+    "providerClaudeHint": "Utilise ton abonnement Claude.ai existant via OAuth — pas de clé API à gérer.",
+    "providerClaudeLink": "Connecter mon compte Claude",
+    "providerClaudeLinked": "Connecté",
+    "providerClaudeUnlink": "Déconnecter",
+    "providerOpenrouter": "OpenRouter",
+    "providerOpenrouterHint": "Pay-per-token via ta clé OpenRouter. N'importe quel modèle de chat supporté.",
+    "openrouterApiKey": "Clé API OpenRouter",
+    "openrouterApiKeyPlaceholder": "sk-or-v1-...",
+    "openrouterApiKeyStored": "Clé enregistrée ({masked})",
+    "openrouterApiKeyClear": "Supprimer",
+    "openrouterModel": "Modèle de chat",
+
+    "embeddingsSection": "Embeddings (RAG)",
+    "embeddingsHint": "Utilisés pour retrouver la doc Kubernetes pertinente avant chaque réponse du tuteur. Doit correspondre à l'index vectoriel embarqué.",
+    "embeddingLocal": "Local — bge-small-en (in-process, gratuit, ~130 Mo)",
+    "embeddingOpenAi3Small": "OpenRouter — text-embedding-3-small (1536 dims)",
+    "embeddingOpenAi3Large": "OpenRouter — text-embedding-3-large (3072 dims)",
+    "embeddingQwen3": "OpenRouter — qwen3-embedding-0.6b (open source)",
+    "ragEnabled": "Utiliser le retrieval (RAG) lors des appels au tuteur",
+    "ragEnabledHint": "Désactivé, le tuteur répond de mémoire — plus rapide mais plus sujet aux hallucinations.",
+
+    "futureNotice": "Le Sprint 3 branchera les vrais appels IA ; aujourd'hui cette page ne fait que persister tes préférences."
   }
 }

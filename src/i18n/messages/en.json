@@ -14,6 +14,7 @@
     "whyP2": "This tool drills that exact reflex. It will later extend to shell and vi (the other silent CKA bottlenecks).",
     "startSession": "Start a session",
     "viewDashboard": "View my dashboard",
+    "settings": "Settings",
     "questionCount": "{count} questions available · {limit}s per question",
     "footerStatus": "Status: through Sprint 2 (kubectl + persistence).",
     "sourceLink": "Source code",
@@ -98,5 +99,44 @@
     "switchTo": "Switch to {locale}",
     "english": "English",
     "french": "Français"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Configure the AI tutor and the embedding provider for the documentation-grounded RAG. All keys stay on your device.",
+    "saved": "Settings saved.",
+    "saveError": "Could not save. Try again.",
+    "save": "Save changes",
+
+    "tutorSection": "AI tutor",
+    "tutorEnabled": "Enable the AI tutor",
+    "tutorEnabledHint": "Adds an explanation panel after each answer. Disabled in exam mode.",
+    "examMode": "Exam mode (no AI during sessions)",
+    "examModeHint": "Replicates real CKA conditions: pure dexterity, no assistance.",
+
+    "providerSection": "LLM provider",
+    "providerHint": "Choose which model powers the tutor. Both options are bring-your-own-key.",
+    "providerClaude": "Claude (OAuth via your claude.ai subscription)",
+    "providerClaudeHint": "Uses your existing Claude.ai subscription via OAuth — no API key needed.",
+    "providerClaudeLink": "Connect Claude account",
+    "providerClaudeLinked": "Connected",
+    "providerClaudeUnlink": "Disconnect",
+    "providerOpenrouter": "OpenRouter",
+    "providerOpenrouterHint": "Pay-per-token via your OpenRouter API key. Pick any supported chat model.",
+    "openrouterApiKey": "OpenRouter API key",
+    "openrouterApiKeyPlaceholder": "sk-or-v1-...",
+    "openrouterApiKeyStored": "Key stored ({masked})",
+    "openrouterApiKeyClear": "Clear",
+    "openrouterModel": "Chat model",
+
+    "embeddingsSection": "Embeddings (RAG)",
+    "embeddingsHint": "Used to retrieve relevant Kubernetes docs before each tutor reply. Must match the bundled vector index.",
+    "embeddingLocal": "Local — bge-small-en (in-process, free, ~130 MB)",
+    "embeddingOpenAi3Small": "OpenRouter — text-embedding-3-small (1536 dims)",
+    "embeddingOpenAi3Large": "OpenRouter — text-embedding-3-large (3072 dims)",
+    "embeddingQwen3": "OpenRouter — qwen3-embedding-0.6b (open source)",
+    "ragEnabled": "Use retrieval (RAG) when calling the tutor",
+    "ragEnabledHint": "When off, the tutor answers from its own knowledge — faster but more prone to hallucinations.",
+
+    "futureNotice": "Sprint 3 ships the actual AI calls; today this page only persists your preferences."
   }
 }

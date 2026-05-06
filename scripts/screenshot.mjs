@@ -159,8 +159,71 @@ async function captureLocale(locale) {
   await context.close();
 }
 
+async function captureSettings(locale) {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 1100 },
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+    colorScheme: "dark"
+  });
+  // 1. Default state
+  {
+    const page = await context.newPage();
+    await page.goto(`${BASE}/${locale}/settings`, {
+      waitUntil: "networkidle"
+    });
+    await page.waitForSelector("h1");
+
+    // Switch to OpenRouter to display the API key + model fields, then enable
+    // the tutor and switch the embedding provider for a richer screenshot.
+    // Switch to OpenRouter (each interaction triggers an autosave + setState
+    // round-trip, so we click and wait rather than using .check()).
+    await page
+      .locator(
+        'input[type="radio"][name="llmProvider"][value="openrouter"]'
+      )
+      .first()
+      .click();
+    await page.waitForTimeout(700);
+    // Wait for the API key input to be in the DOM.
+    await page.waitForSelector("input#or-key");
+    await page.locator("input#or-key").fill("sk-or-v1-demo-screenshot-key");
+    await page
+      .getByRole("button", {
+        name: locale === "en" ? "Save changes" : "Sauvegarder"
+      })
+      .first()
+      .click();
+    await page.waitForTimeout(700);
+    // Enable AI tutor toggle.
+    await page
+      .locator("label")
+      .filter({
+        hasText:
+          locale === "en" ? "Enable the AI tutor" : "Activer le tuteur IA"
+      })
+      .locator('input[type="checkbox"]')
+      .first()
+      .click();
+    await page.waitForTimeout(500);
+    // Switch embedding to OpenRouter 3-small for visual variety.
+    await page
+      .locator(
+        'input[type="radio"][name="embeddingProvider"][value="openrouter-text-embedding-3-small"]'
+      )
+      .first()
+      .click();
+    await page.waitForTimeout(700);
+    await shotPage(page, `06-settings.${locale}.png`);
+    await page.close();
+  }
+  await context.close();
+}
+
 await captureLocale("en");
 await captureLocale("fr");
+await captureSettings("en");
+await captureSettings("fr");
 
 await browser.close();
 console.log("Done.");
