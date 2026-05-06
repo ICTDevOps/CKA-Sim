@@ -87,23 +87,16 @@ async function expectedForCurrent(page) {
 
 // 4. Score summary : on enchaîne les 10 questions en répondant correctement
 //    pour 7 d'entre elles, en sautant pour 3, ce qui donne un score "réaliste".
-{
-  const page = await context.newPage();
+async function playSession(page, skipIndices = new Set([2, 5, 8])) {
   await page.goto(`${BASE}/session`, { waitUntil: "networkidle" });
-
-  // Plan : index des questions où on saute volontairement.
-  const skipIndices = new Set([2, 5, 8]);
-
   for (let i = 0; i < 12; i++) {
     const onSummary = await page
       .locator("h2:has-text('Score')")
       .isVisible()
       .catch(() => false);
-    if (onSummary) break;
-
+    if (onSummary) return;
     const article = page.locator("article");
-    if (!(await article.isVisible().catch(() => false))) break;
-
+    if (!(await article.isVisible().catch(() => false))) return;
     if (skipIndices.has(i)) {
       await page.getByRole("button", { name: "Passer" }).click();
     } else {
@@ -112,16 +105,42 @@ async function expectedForCurrent(page) {
         .locator('input[aria-label="Commande à exécuter"]')
         .fill(expected);
       await page.keyboard.press("Enter");
-      // Attend que le feedback s'affiche puis disparaisse (~1.8s par défaut
-      // dans l'app, on attend un peu plus).
       await page.waitForSelector('[role="status"]');
       await page.waitForTimeout(1900);
     }
   }
-
   await page.waitForSelector("h2:has-text('Score')");
+}
+
+{
+  const page = await context.newPage();
+  await playSession(page);
   await page.waitForTimeout(300);
   await shot(page, "04-score-summary.png");
+  await page.close();
+}
+
+// 5. Dashboard : pour avoir un dashboard riche, on enchaîne plusieurs
+//    sessions avec des skip patterns différents → variétés de scores et
+//    de domaines couverts. Puis on screenshote /dashboard.
+{
+  const page = await context.newPage();
+  // 5 sessions supplémentaires (la précédente compte déjà comme session 1).
+  const skipPatterns = [
+    new Set([1, 4]),       // 8/10
+    new Set([0, 3, 7, 9]), // 6/10
+    new Set([2, 6]),       // 8/10
+    new Set([1, 5, 8]),    // 7/10
+    new Set([4])           // 9/10
+  ];
+  for (const skip of skipPatterns) {
+    await playSession(page, skip);
+    await page.waitForTimeout(400);
+  }
+  await page.goto(`${BASE}/dashboard`, { waitUntil: "networkidle" });
+  await page.waitForSelector("h1:has-text('Dashboard')");
+  await page.waitForTimeout(400);
+  await shot(page, "05-dashboard.png");
   await page.close();
 }
 

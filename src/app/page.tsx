@@ -38,6 +38,12 @@ export default function HomePage() {
         >
           Démarrer une session
         </Link>
+        <Link
+          href="/dashboard"
+          className="rounded border border-terminal-dim/60 px-5 py-3 hover:border-terminal-fg"
+        >
+          Voir mon dashboard
+        </Link>
         <p className="text-sm text-terminal-dim">
           {total} questions disponibles · 60s par question
         </p>
