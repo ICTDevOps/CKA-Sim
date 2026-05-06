@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+  background: theme(colors.terminal.bg);
+  color: theme(colors.terminal.fg);
+}
+
+body {
+  font-family: theme(fontFamily.mono);
+}
+
+::selection {
+  background: theme(colors.terminal.accent);
+  color: theme(colors.terminal.bg);
+}
+
+.caret::after {
+  content: "";
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.1em;
+  margin-left: 1px;
+  vertical-align: -0.18em;
+  background: theme(colors.terminal.fg);
+  animation: blink 1.05s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
