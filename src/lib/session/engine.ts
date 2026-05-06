@@ -1,0 +1,124 @@
+import type { Question } from "@/lib/questions/types";
+import { regexValidator } from "@/lib/validators";
+import type {
+  AttemptRecord,
+  FinalScore,
+  SessionConfig,
+  SessionState
+} from "./types";
+
+/**
+ * Moteur de session pur (sans I/O ni React). Toutes les transitions sont
+ * exprimées comme des fonctions `(state, event) => state`. Cela rend le
+ * comportement testable indépendamment de l'UI et permet de brancher plus tard
+ * un store (Zustand, Redux, ou un simple useReducer).
+ */
+
+export function createSession(
+  questions: Question[],
+  config: SessionConfig
+): SessionState {
+  if (questions.length === 0) {
+    throw new Error("Une session doit contenir au moins une question.");
+  }
+  return {
+    status: "ready",
+    config,
+    questions,
+    currentIndex: 0,
+    attempts: [],
+    currentQuestionStartedAt: null,
+    hintsRevealed: 0
+  };
+}
+
+export function startSession(
+  state: SessionState,
+  now: number = Date.now()
+): SessionState {
+  if (state.status !== "ready") return state;
+  return {
+    ...state,
+    status: "playing",
+    currentQuestionStartedAt: now
+  };
+}
+
+export function revealHint(state: SessionState): SessionState {
+  if (state.status !== "playing") return state;
+  const question = currentQuestion(state);
+  const max = question.hints?.length ?? 0;
+  if (state.hintsRevealed >= max) return state;
+  return { ...state, hintsRevealed: state.hintsRevealed + 1 };
+}
+
+/**
+ * Soumet la réponse de l'utilisateur pour la question courante.
+ * Le moteur ne valide pas les inputs vides : c'est à l'UI de les bloquer.
+ */
+export function submitAnswer(
+  state: SessionState,
+  input: string,
+  now: number = Date.now()
+): SessionState {
+  if (state.status !== "playing") return state;
+  const question = currentQuestion(state);
+  const result = regexValidator.validate(input, question);
+  const startedAt = state.currentQuestionStartedAt ?? now;
+  const attempt: AttemptRecord = {
+    questionId: question.id,
+    userInput: input,
+    correct: result.correct,
+    hintsUsed: state.hintsRevealed,
+    timeMs: Math.max(0, now - startedAt),
+    submittedAt: now
+  };
+  const nextIndex = state.currentIndex + 1;
+  const finished = nextIndex >= state.config.totalQuestions
+    || nextIndex >= state.questions.length;
+  return {
+    ...state,
+    attempts: [...state.attempts, attempt],
+    currentIndex: finished ? state.currentIndex : nextIndex,
+    status: finished ? "finished" : "playing",
+    currentQuestionStartedAt: finished ? null : now,
+    hintsRevealed: 0
+  };
+}
+
+/**
+ * Marque la question courante comme abandonnée (timeout, ou bouton "skip").
+ */
+export function skipQuestion(
+  state: SessionState,
+  now: number = Date.now()
+): SessionState {
+  return submitAnswer(state, "", now);
+}
+
+export function currentQuestion(state: SessionState): Question {
+  return state.questions[state.currentIndex];
+}
+
+export function computeFinalScore(state: SessionState): FinalScore {
+  const total = state.attempts.length;
+  const correct = state.attempts.filter((a) => a.correct).length;
+  const totalTimeMs = state.attempts.reduce((acc, a) => acc + a.timeMs, 0);
+  const perDomain: FinalScore["perDomain"] = {};
+  for (const a of state.attempts) {
+    const q = state.questions.find((x) => x.id === a.questionId);
+    if (!q) continue;
+    const slot = perDomain[q.domain] ?? { total: 0, correct: 0 };
+    slot.total += 1;
+    if (a.correct) slot.correct += 1;
+    perDomain[q.domain] = slot;
+  }
+  return {
+    total,
+    correct,
+    percent: total === 0 ? 0 : Math.round((correct / total) * 100),
+    totalTimeMs,
+    averageTimeMs: total === 0 ? 0 : Math.round(totalTimeMs / total),
+    perDomain
+  };
+}

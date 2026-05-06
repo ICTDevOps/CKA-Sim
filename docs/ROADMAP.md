@@ -1,0 +1,120 @@
+# Roadmap
+
+Chaque sprint produit quelque chose d'**utilisable seul**. On n'attaque pas le
+suivant tant que le précédent n'apporte pas une vraie valeur en l'état.
+
+## Sprint 1 — Squelette + dextérité kubectl pure ✅
+
+**Objectif :** "tape la commande, ça te dit oui/non, chrono".
+
+- [x] Bootstrap Next.js + TypeScript + Tailwind
+- [x] Schéma de question (`Question`, `CommandQuestion`, `ViQuestion`)
+- [x] `RegexValidator` déterministe
+- [x] 20 questions seed couvrant les 5 domaines CKA
+- [x] Moteur de session pur (state machine)
+- [x] UI : home, prompt, timer, question card, feedback, score summary
+- [x] Documentation initiale (README, ARCHITECTURE, QUESTION_SCHEMA)
+
+**Livrable :** une app utilisable pour s'entraîner aux commandes kubectl.
+
+---
+
+## Sprint 2 — Persistance & dashboard perso
+
+**Objectif :** garder un historique des sessions et identifier les points
+faibles.
+
+- [ ] Setup SQLite (`better-sqlite3` côté serveur)
+- [ ] Schéma `users / runs / attempts`
+- [ ] API routes : `POST /api/runs`, `POST /api/runs/:id/attempts`,
+      `PATCH /api/runs/:id/end`, `GET /api/stats/me`
+- [ ] Page `/dashboard` : courbe de score, heatmap catégorie × difficulté,
+      streak, top 10 questions ratées
+- [ ] Anti-cheat léger (validation côté serveur, plausibilité des temps)
+- [ ] Export JSON de l'historique (`GET /api/me/export`)
+
+**Livrable :** l'utilisateur voit sa progression dans le temps.
+
+---
+
+## Sprint 3 — Tuteur IA (sans RAG)
+
+**Objectif :** explication post-réponse, sans pour autant exiger le RAG dès
+le départ.
+
+- [ ] Interface `LLMProvider` avec capability flags
+- [ ] `ClaudeOAuthProvider` (flow OAuth claude.ai)
+- [ ] `OpenRouterProvider` (clé API utilisateur, sélection du modèle)
+- [ ] Settings page : choix du provider, gestion des clés (chiffrement local)
+- [ ] Mode "Entraînement" qui appelle le tuteur après chaque réponse
+- [ ] Mode "Examen" qui désactive l'IA (chrono strict)
+- [ ] Limitation hallucination : prompt système strict, "ne réponds pas si tu
+      n'es pas sûr"
+
+**Limitation assumée :** les explications peuvent être imprécises tant que le
+RAG n'est pas branché. C'est documenté dans l'UI.
+
+**Livrable :** le tuteur explique pourquoi une commande est fausse et propose
+des alternatives idiomatiques.
+
+---
+
+## Sprint 4 — RAG ancré sur la doc officielle
+
+**Objectif :** zéro hallucination, citations cliquables.
+
+- [ ] Pipeline d'ingestion : fichiers locaux + git (kubernetes/website)
+- [ ] Chunking par sections H2/H3
+- [ ] `EmbeddingProvider` (Local bge-small + OpenRouter)
+- [ ] Index multi-modèles (`kb-bge-small.db`, `kb-openai-3-small.db`, ...)
+- [ ] Validation au boot (cohérence config ↔ index)
+- [ ] Pipeline retrieval + reranking + LLM avec citations forcées
+- [ ] UI : citations sourcées sous chaque réponse IA
+
+**Livrable :** le tuteur ne dit plus rien qu'il ne puisse sourcer dans la doc.
+
+---
+
+## Sprint 5 — Extensions shell + vi
+
+**Objectif :** étendre la dextérité aux deux autres goulots du CKA.
+
+- [ ] Catégorie `shell` : 30 questions sur grep/awk/sed/jq/yq/systemctl/...
+- [ ] Catégorie `vi` : éditeur codemirror-vim intégré
+- [ ] Validation `vi` : comparaison de buffer attendu (avec multi-cibles)
+- [ ] **Scoring keystroke-efficiency** (ratio `optimalKeystrokes / actual`)
+- [ ] Filtres de session par catégorie
+
+**Livrable :** un entraînement complet qui couvre kubectl + shell + vi.
+
+---
+
+## Sprint 6 — Sources web custom + UI admin
+
+**Objectif :** que l'utilisateur puisse enrichir la base de connaissance avec
+ses propres sources.
+
+- [ ] Schéma `sources` en DB
+- [ ] Crawler avec respect de `robots.txt`, User-Agent identifiable, rate
+      limiting
+- [ ] Détection incrémentale via `etag` / `If-Modified-Since` / `content_hash`
+- [ ] Extraction propre via Mozilla Readability + turndown
+- [ ] Page `Settings → Sources de connaissance`
+- [ ] Séparation `kb-bundled.db` (image) + `kb-user.db` (volume)
+- [ ] Scheduler interne au container (`node-cron`)
+
+**Livrable :** l'utilisateur peut indexer son blog, sa doc d'équipe, etc.
+
+---
+
+## Au-delà
+
+Idées en file d'attente, à prioriser selon les retours :
+
+- **Mode lab** : exécution réelle dans un cluster `kind` éphémère
+- **Multi-utilisateur + leaderboard** (Niveau 2 du schéma persistance)
+- **Auth** : magic link email ou OAuth GitHub
+- **Génération de questions assistée par LLM** validées en CI sur cluster
+  `kind` (PR auto)
+- **Extensions** : CKAD, CKS, Linux, Git, Terraform, AWS CLI (même mécanique)
+- **Mobile-friendly** : exporter le mode "flashcards" pour les transports
