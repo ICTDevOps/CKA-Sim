@@ -2,17 +2,18 @@ import type { ScorePoint } from "@/lib/db/repositories/stats";
 
 interface ScoreCurveProps {
   points: ScorePoint[];
+  emptyLabel: string;
 }
 
 /**
  * Tiny dependency-free SVG line chart of score% over time.
  * X = run index (oldest → newest, left → right). Y = score%.
  */
-export function ScoreCurve({ points }: ScoreCurveProps) {
+export function ScoreCurve({ points, emptyLabel }: ScoreCurveProps) {
   if (points.length === 0) {
     return (
       <div className="rounded-lg border border-terminal-dim/40 bg-black/30 p-4 text-sm text-terminal-dim">
-        Pas encore de données.
+        {emptyLabel}
       </div>
     );
   }

@@ -1,6 +1,8 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { isCommandQuestion, type Question } from "@/lib/questions";
+import { localized, type Locale } from "@/lib/questions/types";
 
 interface FeedbackProps {
   question: Question;
@@ -9,12 +11,14 @@ interface FeedbackProps {
 }
 
 export function Feedback({ question, correct, userInput }: FeedbackProps) {
+  const locale = useLocale() as Locale;
+  const t = useTranslations("feedback");
   const expected = isCommandQuestion(question)
     ? question.challenge.expected
     : "—";
   const explanation = isCommandQuestion(question)
-    ? question.challenge.explanation
-    : undefined;
+    ? localized(question.challenge.explanation, locale)
+    : "";
 
   return (
     <div
@@ -27,16 +31,16 @@ export function Feedback({ question, correct, userInput }: FeedbackProps) {
       aria-live="polite"
     >
       <p className="font-semibold">
-        {correct ? "✓ Correct." : "✗ Pas tout à fait."}
+        {correct ? t("correct") : t("incorrect")}
       </p>
       {!correct && userInput && (
         <p className="mt-2">
-          <span className="text-terminal-dim">Ta saisie : </span>
+          <span className="text-terminal-dim">{t("yourInput")} </span>
           <code className="text-terminal-ko">{userInput}</code>
         </p>
       )}
       <p className="mt-2">
-        <span className="text-terminal-dim">Commande attendue : </span>
+        <span className="text-terminal-dim">{t("expected")} </span>
         <code className="text-terminal-accent">{expected}</code>
       </p>
       {explanation && (

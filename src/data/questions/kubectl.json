@@ -3,14 +3,20 @@
     "id": "k-pods-001",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Lister tous les pods du namespace 'web'.",
+    "scenario": {
+      "en": "List all pods in the 'web' namespace.",
+      "fr": "Lister tous les pods du namespace 'web'."
+    },
     "difficulty": 1,
     "tags": ["pods", "get"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl get pods -n web",
-      "explanation": "`get pods` ou `get po` (alias) acceptent `-n <ns>` ou `--namespace=<ns>`.",
+      "explanation": {
+        "en": "`get pods` or `get po` (alias) accept either `-n <ns>` or `--namespace=<ns>`.",
+        "fr": "`get pods` ou `get po` (alias) acceptent `-n <ns>` ou `--namespace=<ns>`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+get\\s+(pods?|po)\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+get\\s+(pods?|po)$"
@@ -21,14 +27,20 @@
     "id": "k-pods-002",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Lister tous les pods de tous les namespaces avec leur IP et le node sur lequel ils tournent.",
+    "scenario": {
+      "en": "List all pods across all namespaces with their IP and the node they run on.",
+      "fr": "Lister tous les pods de tous les namespaces avec leur IP et le node sur lequel ils tournent."
+    },
     "difficulty": 2,
     "tags": ["pods", "get", "wide"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl get pods -A -o wide",
-      "explanation": "`-A` est l'alias court de `--all-namespaces`. `-o wide` ajoute IP, node, nominated node et readiness gates.",
+      "explanation": {
+        "en": "`-A` is the short alias for `--all-namespaces`. `-o wide` adds IP, node, nominated node and readiness gates.",
+        "fr": "`-A` est l'alias court de `--all-namespaces`. `-o wide` ajoute IP, node, nominated node et readiness gates."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+get\\s+(pods?|po)\\s+(-A|--all-namespaces)\\s+-o\\s+wide$",
         "^(kubectl|k)\\s+get\\s+(pods?|po)\\s+-o\\s+wide\\s+(-A|--all-namespaces)$"
@@ -39,14 +51,20 @@
     "id": "k-pods-003",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Créer un pod nommé 'nginx' avec l'image 'nginx:1.27' dans le namespace 'web'.",
+    "scenario": {
+      "en": "Create a pod named 'nginx' with image 'nginx:1.27' in the 'web' namespace.",
+      "fr": "Créer un pod nommé 'nginx' avec l'image 'nginx:1.27' dans le namespace 'web'."
+    },
     "difficulty": 1,
     "tags": ["pods", "run", "create"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl run nginx --image=nginx:1.27 -n web",
-      "explanation": "`kubectl run` crée un pod (depuis K8s 1.18+, plus un deployment). L'option `--image` est obligatoire.",
+      "explanation": {
+        "en": "`kubectl run` creates a pod (since K8s 1.18+, no longer a deployment). `--image` is required.",
+        "fr": "`kubectl run` crée un pod (depuis K8s 1.18+, plus un deployment). L'option `--image` est obligatoire."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+run\\s+nginx\\s+--image[= ]nginx:1\\.27\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+run\\s+nginx\\s+--image[= ]nginx:1\\.27$",
@@ -58,18 +76,30 @@
     "id": "k-pods-004",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Générer le YAML d'un pod 'tester' image 'busybox' qui exécute 'sleep 3600', sans le créer dans le cluster.",
+    "scenario": {
+      "en": "Generate the YAML for a pod 'tester' image 'busybox' that runs 'sleep 3600', without creating it on the cluster.",
+      "fr": "Générer le YAML d'un pod 'tester' image 'busybox' qui exécute 'sleep 3600', sans le créer dans le cluster."
+    },
     "difficulty": 3,
     "tags": ["pods", "run", "dry-run", "yaml"],
     "k8sVersion": "1.31",
-    "hints": [
-      "Pense à `--dry-run=client` et `-o yaml`.",
-      "Sépare les arguments du conteneur après `--`."
-    ],
+    "hints": {
+      "en": [
+        "Think `--dry-run=client` and `-o yaml`.",
+        "Pass container args after `--`."
+      ],
+      "fr": [
+        "Pense à `--dry-run=client` et `-o yaml`.",
+        "Sépare les arguments du conteneur après `--`."
+      ]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl run tester --image=busybox --dry-run=client -o yaml -- sleep 3600",
-      "explanation": "Astuce d'examen : on génère le manifeste avec `--dry-run=client -o yaml`, on l'édite si besoin, puis `kubectl apply -f`.",
+      "explanation": {
+        "en": "Exam tip: generate the manifest with `--dry-run=client -o yaml`, edit it as needed, then `kubectl apply -f`.",
+        "fr": "Astuce d'examen : on génère le manifeste avec `--dry-run=client -o yaml`, on l'édite si besoin, puis `kubectl apply -f`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+run\\s+tester\\s+--image[= ]busybox\\s+--dry-run=client\\s+-o\\s+yaml\\s+--\\s+sleep\\s+3600$",
         "^(kubectl|k)\\s+run\\s+tester\\s+--image[= ]busybox\\s+-o\\s+yaml\\s+--dry-run=client\\s+--\\s+sleep\\s+3600$"
@@ -80,14 +110,20 @@
     "id": "k-deploy-001",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Créer un deployment 'api' avec 3 réplicas, image 'nginx', dans le namespace 'web'.",
+    "scenario": {
+      "en": "Create an 'api' deployment with 3 replicas, image 'nginx', in the 'web' namespace.",
+      "fr": "Créer un deployment 'api' avec 3 réplicas, image 'nginx', dans le namespace 'web'."
+    },
     "difficulty": 2,
     "tags": ["deployment", "create"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl create deployment api --image=nginx --replicas=3 -n web",
-      "explanation": "`create deployment` accepte `--replicas` depuis K8s 1.19. Avant, on faisait `create` puis `scale`.",
+      "explanation": {
+        "en": "`create deployment` accepts `--replicas` since K8s 1.19. Before that you'd `create` then `scale`.",
+        "fr": "`create deployment` accepte `--replicas` depuis K8s 1.19. Avant, on faisait `create` puis `scale`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+create\\s+deploy(ment)?\\s+api\\s+--image[= ]nginx\\s+--replicas[= ]3\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+create\\s+deploy(ment)?\\s+api\\s+(-n\\s+web|--namespace[= ]web)\\s+--image[= ]nginx\\s+--replicas[= ]3$",
@@ -99,7 +135,10 @@
     "id": "k-deploy-002",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Scaler le deployment 'api' à 5 réplicas dans le namespace 'web'.",
+    "scenario": {
+      "en": "Scale the 'api' deployment to 5 replicas in the 'web' namespace.",
+      "fr": "Scaler le deployment 'api' à 5 réplicas dans le namespace 'web'."
+    },
     "difficulty": 1,
     "tags": ["deployment", "scale"],
     "k8sVersion": "1.31",
@@ -116,14 +155,20 @@
     "id": "k-deploy-003",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Mettre à jour l'image du deployment 'api' (conteneur 'api') vers 'nginx:1.27' dans le namespace 'web'.",
+    "scenario": {
+      "en": "Update the image of the 'api' deployment (container 'api') to 'nginx:1.27' in the 'web' namespace.",
+      "fr": "Mettre à jour l'image du deployment 'api' (conteneur 'api') vers 'nginx:1.27' dans le namespace 'web'."
+    },
     "difficulty": 2,
     "tags": ["deployment", "set", "image"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl set image deployment/api api=nginx:1.27 -n web",
-      "explanation": "Utiliser `set image` est plus rapide que `edit` pour ce cas. Format : `<container>=<image>`.",
+      "explanation": {
+        "en": "`set image` is faster than `edit` for this case. Format: `<container>=<image>`.",
+        "fr": "Utiliser `set image` est plus rapide que `edit` pour ce cas. Format : `<container>=<image>`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+set\\s+image\\s+deploy(ment)?/api\\s+api=nginx:1\\.27\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+set\\s+image\\s+deploy(ment)?/api\\s+api=nginx:1\\.27$"
@@ -134,7 +179,10 @@
     "id": "k-deploy-004",
     "category": "kubectl",
     "domain": "workloads-scheduling",
-    "scenario": "Annuler le dernier rollout du deployment 'api' dans le namespace 'web'.",
+    "scenario": {
+      "en": "Roll back the latest rollout of the 'api' deployment in the 'web' namespace.",
+      "fr": "Annuler le dernier rollout du deployment 'api' dans le namespace 'web'."
+    },
     "difficulty": 2,
     "tags": ["deployment", "rollout", "undo"],
     "k8sVersion": "1.31",
@@ -151,14 +199,20 @@
     "id": "k-svc-001",
     "category": "kubectl",
     "domain": "services-networking",
-    "scenario": "Exposer le deployment 'api' (port 80) en service ClusterIP nommé 'api' dans le namespace 'web'.",
+    "scenario": {
+      "en": "Expose the 'api' deployment (port 80) as a ClusterIP service named 'api' in the 'web' namespace.",
+      "fr": "Exposer le deployment 'api' (port 80) en service ClusterIP nommé 'api' dans le namespace 'web'."
+    },
     "difficulty": 2,
     "tags": ["service", "expose"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl expose deployment api --port=80 -n web",
-      "explanation": "`expose` crée un service ClusterIP par défaut. Le nom du service hérite du déploiement sauf si `--name=...`.",
+      "explanation": {
+        "en": "`expose` creates a ClusterIP service by default. The service inherits the deployment's name unless `--name=...`.",
+        "fr": "`expose` crée un service ClusterIP par défaut. Le nom du service hérite du déploiement sauf si `--name=...`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+expose\\s+deploy(ment)?(/api|\\s+api)\\s+--port[= ]80\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+expose\\s+deploy(ment)?(/api|\\s+api)\\s+--port[= ]80\\s+--type[= ]ClusterIP\\s+(-n\\s+web|--namespace[= ]web)$",
@@ -170,14 +224,20 @@
     "id": "k-svc-002",
     "category": "kubectl",
     "domain": "services-networking",
-    "scenario": "Lister les endpoints du service 'api' dans le namespace 'web'.",
+    "scenario": {
+      "en": "List the endpoints of the 'api' service in the 'web' namespace.",
+      "fr": "Lister les endpoints du service 'api' dans le namespace 'web'."
+    },
     "difficulty": 2,
     "tags": ["service", "endpoints"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl get endpoints api -n web",
-      "explanation": "`endpoints` (ou `ep`) renvoie les IPs/ports ciblés. EndpointSlices (`endpointslices`) est l'API moderne.",
+      "explanation": {
+        "en": "`endpoints` (alias `ep`) returns the targeted IPs/ports. EndpointSlices (`endpointslices`) is the modern API.",
+        "fr": "`endpoints` (ou `ep`) renvoie les IPs/ports ciblés. EndpointSlices (`endpointslices`) est l'API moderne."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+get\\s+(endpoints|ep)\\s+api\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+get\\s+(endpoints|ep)\\s+api$",
@@ -189,7 +249,10 @@
     "id": "k-ns-001",
     "category": "kubectl",
     "domain": "cluster-architecture",
-    "scenario": "Créer un namespace nommé 'staging'.",
+    "scenario": {
+      "en": "Create a namespace called 'staging'.",
+      "fr": "Créer un namespace nommé 'staging'."
+    },
     "difficulty": 1,
     "tags": ["namespace", "create"],
     "k8sVersion": "1.31",
@@ -205,15 +268,24 @@
     "id": "k-ctx-001",
     "category": "kubectl",
     "domain": "cluster-architecture",
-    "scenario": "Changer le namespace par défaut du contexte courant pour 'web' (sans changer de cluster ni d'utilisateur).",
+    "scenario": {
+      "en": "Change the default namespace of the current context to 'web' (without changing cluster or user).",
+      "fr": "Changer le namespace par défaut du contexte courant pour 'web' (sans changer de cluster ni d'utilisateur)."
+    },
     "difficulty": 3,
     "tags": ["context", "config"],
     "k8sVersion": "1.31",
-    "hints": ["`kubectl config set-context --current ...`."],
+    "hints": {
+      "en": ["`kubectl config set-context --current ...`."],
+      "fr": ["`kubectl config set-context --current ...`."]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl config set-context --current --namespace=web",
-      "explanation": "Astuce d'examen : aucun candidat sérieux ne tape `-n web` à chaque fois. Fixer le namespace au début gagne du temps.",
+      "explanation": {
+        "en": "Exam tip: no serious candidate types `-n web` on every command. Pinning the namespace upfront saves time.",
+        "fr": "Astuce d'examen : aucun candidat sérieux ne tape `-n web` à chaque fois. Fixer le namespace au début gagne du temps."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+config\\s+set-context\\s+--current\\s+--namespace[= ]web$",
         "^(kubectl|k)\\s+config\\s+set-context\\s+--namespace[= ]web\\s+--current$"
@@ -224,7 +296,10 @@
     "id": "k-rbac-001",
     "category": "kubectl",
     "domain": "cluster-architecture",
-    "scenario": "Créer un ServiceAccount 'ci' dans le namespace 'web'.",
+    "scenario": {
+      "en": "Create a ServiceAccount 'ci' in the 'web' namespace.",
+      "fr": "Créer un ServiceAccount 'ci' dans le namespace 'web'."
+    },
     "difficulty": 1,
     "tags": ["rbac", "serviceaccount"],
     "k8sVersion": "1.31",
@@ -241,14 +316,20 @@
     "id": "k-rbac-002",
     "category": "kubectl",
     "domain": "cluster-architecture",
-    "scenario": "Créer un Role 'reader' qui autorise 'get,list,watch' sur les pods, dans le namespace 'web'.",
+    "scenario": {
+      "en": "Create a Role 'reader' allowing 'get,list,watch' on pods, in the 'web' namespace.",
+      "fr": "Créer un Role 'reader' qui autorise 'get,list,watch' sur les pods, dans le namespace 'web'."
+    },
     "difficulty": 3,
     "tags": ["rbac", "role"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl create role reader --verb=get,list,watch --resource=pods -n web",
-      "explanation": "`create role` est un raccourci. Sépare les verbes par des virgules sans espaces.",
+      "explanation": {
+        "en": "`create role` is a shortcut. Separate verbs with commas, no spaces.",
+        "fr": "`create role` est un raccourci. Sépare les verbes par des virgules sans espaces."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+create\\s+role\\s+reader\\s+--verb[= ]get,list,watch\\s+--resource[= ]pods?\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+create\\s+role\\s+reader\\s+--verb[= ]get,list,watch\\s+--resource[= ]pods?$"
@@ -259,15 +340,30 @@
     "id": "k-rbac-003",
     "category": "kubectl",
     "domain": "cluster-architecture",
-    "scenario": "Vérifier si le ServiceAccount 'ci' du namespace 'web' peut créer des deployments.",
+    "scenario": {
+      "en": "Check whether the ServiceAccount 'ci' in the 'web' namespace can create deployments.",
+      "fr": "Vérifier si le ServiceAccount 'ci' du namespace 'web' peut créer des deployments."
+    },
     "difficulty": 3,
     "tags": ["rbac", "auth"],
     "k8sVersion": "1.31",
-    "hints": ["`kubectl auth can-i ...`", "Spécifier `--as=system:serviceaccount:web:ci`."],
+    "hints": {
+      "en": [
+        "`kubectl auth can-i ...`",
+        "Specify `--as=system:serviceaccount:web:ci`."
+      ],
+      "fr": [
+        "`kubectl auth can-i ...`",
+        "Spécifier `--as=system:serviceaccount:web:ci`."
+      ]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl auth can-i create deployments --as=system:serviceaccount:web:ci -n web",
-      "explanation": "`auth can-i` répond yes/no en prenant en compte tous les Roles/ClusterRoles applicables.",
+      "explanation": {
+        "en": "`auth can-i` answers yes/no taking all applicable Roles/ClusterRoles into account.",
+        "fr": "`auth can-i` répond yes/no en prenant en compte tous les Roles/ClusterRoles applicables."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+auth\\s+can-i\\s+create\\s+deploy(ments?)?\\s+--as[= ]system:serviceaccount:web:ci\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+auth\\s+can-i\\s+create\\s+deploy(ments?)?\\s+--as[= ]system:serviceaccount:web:ci$"
@@ -278,11 +374,17 @@
     "id": "k-storage-001",
     "category": "kubectl",
     "domain": "storage",
-    "scenario": "Lister les PersistentVolumes du cluster, triés par capacité.",
+    "scenario": {
+      "en": "List the cluster's PersistentVolumes, sorted by capacity.",
+      "fr": "Lister les PersistentVolumes du cluster, triés par capacité."
+    },
     "difficulty": 3,
     "tags": ["storage", "pv", "sort"],
     "k8sVersion": "1.31",
-    "hints": ["`--sort-by=...` accepte des JSONPath."],
+    "hints": {
+      "en": ["`--sort-by=...` accepts JSONPath expressions."],
+      "fr": ["`--sort-by=...` accepte des JSONPath."]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl get pv --sort-by=.spec.capacity.storage",
@@ -296,11 +398,17 @@
     "id": "k-troubleshoot-001",
     "category": "kubectl",
     "domain": "troubleshooting",
-    "scenario": "Afficher les logs du pod 'api' dans le namespace 'web', conteneur 'main', dernière heure.",
+    "scenario": {
+      "en": "Show the logs of the 'api' pod in the 'web' namespace, container 'main', last hour.",
+      "fr": "Afficher les logs du pod 'api' dans le namespace 'web', conteneur 'main', dernière heure."
+    },
     "difficulty": 3,
     "tags": ["logs", "troubleshooting"],
     "k8sVersion": "1.31",
-    "hints": ["`--since=1h`, `-c <container>`."],
+    "hints": {
+      "en": ["`--since=1h`, `-c <container>`."],
+      "fr": ["`--since=1h`, `-c <container>`."]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl logs api -c main --since=1h -n web",
@@ -315,14 +423,20 @@
     "id": "k-troubleshoot-002",
     "category": "kubectl",
     "domain": "troubleshooting",
-    "scenario": "Afficher la consommation CPU/RAM des pods du namespace 'web', triée par mémoire.",
+    "scenario": {
+      "en": "Show CPU/RAM usage of pods in the 'web' namespace, sorted by memory.",
+      "fr": "Afficher la consommation CPU/RAM des pods du namespace 'web', triée par mémoire."
+    },
     "difficulty": 3,
     "tags": ["top", "metrics", "troubleshooting"],
     "k8sVersion": "1.31",
     "challenge": {
       "type": "command",
       "expected": "kubectl top pods --sort-by=memory -n web",
-      "explanation": "Nécessite metrics-server installé. `--sort-by` accepte `cpu` ou `memory`.",
+      "explanation": {
+        "en": "Requires metrics-server. `--sort-by` accepts `cpu` or `memory`.",
+        "fr": "Nécessite metrics-server installé. `--sort-by` accepte `cpu` ou `memory`."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+top\\s+(pods?|po)\\s+--sort-by[= ]memory\\s+(-n\\s+web|--namespace[= ]web)$",
         "^(kubectl|k)\\s+(-n\\s+web|--namespace[= ]web)\\s+top\\s+(pods?|po)\\s+--sort-by[= ]memory$"
@@ -333,15 +447,24 @@
     "id": "k-troubleshoot-003",
     "category": "kubectl",
     "domain": "troubleshooting",
-    "scenario": "Marquer le node 'worker-2' indisponible (drain) en évacuant les pods et en ignorant les daemonsets.",
+    "scenario": {
+      "en": "Mark node 'worker-2' unavailable (drain) by evicting pods and ignoring daemonsets.",
+      "fr": "Marquer le node 'worker-2' indisponible (drain) en évacuant les pods et en ignorant les daemonsets."
+    },
     "difficulty": 4,
     "tags": ["node", "drain", "troubleshooting"],
     "k8sVersion": "1.31",
-    "hints": ["`drain --ignore-daemonsets ...`."],
+    "hints": {
+      "en": ["`drain --ignore-daemonsets ...`."],
+      "fr": ["`drain --ignore-daemonsets ...`."]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl drain worker-2 --ignore-daemonsets",
-      "explanation": "Sur un cluster réel, on ajoute souvent `--delete-emptydir-data` et `--force` selon le cas.",
+      "explanation": {
+        "en": "On a real cluster you often add `--delete-emptydir-data` and `--force` depending on the case.",
+        "fr": "Sur un cluster réel, on ajoute souvent `--delete-emptydir-data` et `--force` selon le cas."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+drain\\s+worker-2\\s+--ignore-daemonsets(\\s+--delete-emptydir-data)?(\\s+--force)?$",
         "^(kubectl|k)\\s+drain\\s+worker-2(\\s+--delete-emptydir-data)?\\s+--ignore-daemonsets(\\s+--force)?$"
@@ -352,15 +475,24 @@
     "id": "k-jsonpath-001",
     "category": "kubectl",
     "domain": "other",
-    "scenario": "Afficher uniquement les noms des nodes du cluster, un par ligne, en utilisant JSONPath.",
+    "scenario": {
+      "en": "Print only the names of the cluster's nodes, one per line, using JSONPath.",
+      "fr": "Afficher uniquement les noms des nodes du cluster, un par ligne, en utilisant JSONPath."
+    },
     "difficulty": 4,
     "tags": ["jsonpath", "nodes"],
     "k8sVersion": "1.31",
-    "hints": ["`-o jsonpath='{range .items[*]}{.metadata.name}{\"\\n\"}{end}'`"],
+    "hints": {
+      "en": ["`-o jsonpath='{range .items[*]}{.metadata.name}{\"\\n\"}{end}'`"],
+      "fr": ["`-o jsonpath='{range .items[*]}{.metadata.name}{\"\\n\"}{end}'`"]
+    },
     "challenge": {
       "type": "command",
       "expected": "kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{\"\\n\"}{end}'",
-      "explanation": "JSONPath est un quasi-incontournable du CKA pour extraire des champs précis.",
+      "explanation": {
+        "en": "JSONPath is a CKA near-essential to extract precise fields.",
+        "fr": "JSONPath est un quasi-incontournable du CKA pour extraire des champs précis."
+      },
       "acceptedPatterns": [
         "^(kubectl|k)\\s+get\\s+nodes?\\s+-o\\s+jsonpath=['\"]\\{range \\.items\\[\\*\\]\\}\\{\\.metadata\\.name\\}\\{[\"']\\\\n[\"']\\}\\{end\\}['\"]$",
         "^(kubectl|k)\\s+get\\s+nodes?\\s+-o\\s+jsonpath=['\"]\\{\\.items\\[\\*\\]\\.metadata\\.name\\}['\"]$"

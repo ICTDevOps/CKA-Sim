@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 
 interface PromptProps {
@@ -29,6 +30,7 @@ export const Prompt = forwardRef<PromptHandle, PromptProps>(function Prompt(
   ref
 ) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("session");
   useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
     clear: () => onChange("")
@@ -57,8 +59,8 @@ export const Prompt = forwardRef<PromptHandle, PromptProps>(function Prompt(
           }
         }}
         className="flex-1 bg-transparent text-terminal-fg outline-none placeholder:text-terminal-dim disabled:opacity-60"
-        placeholder="kubectl ..."
-        aria-label="Commande à exécuter"
+        placeholder={t("promptPlaceholder")}
+        aria-label={t("promptAriaLabel")}
       />
     </label>
   );

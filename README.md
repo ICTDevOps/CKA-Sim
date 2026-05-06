@@ -16,13 +16,13 @@ between passing the CKA in time and running out of it.
 
 | Home | Session — question |
 | :---: | :---: |
-| ![Home page](./public/screenshots/01-home.png) | ![Active session](./public/screenshots/02-session-question.png) |
+| ![Home page](./public/screenshots/01-home.en.png) | ![Active session](./public/screenshots/02-session-question.en.png) |
 | **Feedback after a correct answer** | **End-of-session score** |
-| ![Correct feedback](./public/screenshots/03-session-feedback.png) | ![Score summary](./public/screenshots/04-score-summary.png) |
+| ![Correct feedback](./public/screenshots/03-session-feedback.en.png) | ![Score summary](./public/screenshots/04-score-summary.en.png) |
 
 **Personal dashboard** — score curve, domain × difficulty heatmap, streak, top missed questions:
 
-![Dashboard](./public/screenshots/05-dashboard.png)
+![Dashboard](./public/screenshots/05-dashboard.en.png)
 
 ---
 

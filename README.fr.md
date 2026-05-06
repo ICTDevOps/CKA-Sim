@@ -15,13 +15,13 @@ font la différence entre réussir le CKA dans le temps imparti et tomber court.
 
 | Accueil | Session — question |
 | :---: | :---: |
-| ![Accueil](./public/screenshots/01-home.png) | ![Session active](./public/screenshots/02-session-question.png) |
+| ![Accueil](./public/screenshots/01-home.fr.png) | ![Session active](./public/screenshots/02-session-question.fr.png) |
 | **Feedback après une bonne réponse** | **Score de fin de session** |
-| ![Feedback correct](./public/screenshots/03-session-feedback.png) | ![Récapitulatif](./public/screenshots/04-score-summary.png) |
+| ![Feedback correct](./public/screenshots/03-session-feedback.fr.png) | ![Récapitulatif](./public/screenshots/04-score-summary.fr.png) |
 
 **Dashboard personnel** — courbe de score, heatmap domaine × difficulté, streak, top des questions ratées :
 
-![Dashboard](./public/screenshots/05-dashboard.png)
+![Dashboard](./public/screenshots/05-dashboard.fr.png)
 
 ---
 

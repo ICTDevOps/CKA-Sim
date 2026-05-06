@@ -1,16 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { FinalScore } from "@/lib/session";
-
-const DOMAIN_LABEL: Record<string, string> = {
-  "cluster-architecture": "Architecture & RBAC",
-  "workloads-scheduling": "Workloads & Scheduling",
-  "services-networking": "Services & Networking",
-  storage: "Storage",
-  troubleshooting: "Troubleshooting",
-  other: "Autre"
-};
 
 interface ScoreSummaryProps {
   score: FinalScore;
@@ -23,29 +15,36 @@ function fmtTime(ms: number): string {
 }
 
 export function ScoreSummary({ score }: ScoreSummaryProps) {
+  const t = useTranslations("score");
+  const tDomain = useTranslations("question.domains");
+
   const verdict =
     score.percent >= 80
-      ? "Excellent — tu es prêt pour ce style de question."
+      ? t("verdictExcellent")
       : score.percent >= 60
-      ? "Pas mal. Quelques zones à retravailler."
-      : "Il y a du chemin, mais c'est pour ça que tu t'entraînes.";
+      ? t("verdictGood")
+      : t("verdictWork");
 
   return (
     <section className="space-y-4 rounded-lg border border-terminal-dim/40 bg-black/30 p-6">
       <header>
         <h2 className="text-2xl font-bold text-terminal-fg">
-          Score : {score.correct} / {score.total} ({score.percent}%)
+          {t("headline", {
+            correct: score.correct,
+            total: score.total,
+            percent: score.percent
+          })}
         </h2>
         <p className="text-terminal-dim">{verdict}</p>
       </header>
 
       <dl className="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <dt className="text-terminal-dim">Temps total</dt>
+          <dt className="text-terminal-dim">{t("totalTime")}</dt>
           <dd className="text-terminal-fg">{fmtTime(score.totalTimeMs)}</dd>
         </div>
         <div>
-          <dt className="text-terminal-dim">Temps moyen / question</dt>
+          <dt className="text-terminal-dim">{t("averageTime")}</dt>
           <dd className="text-terminal-fg">{fmtTime(score.averageTimeMs)}</dd>
         </div>
       </dl>
@@ -53,7 +52,7 @@ export function ScoreSummary({ score }: ScoreSummaryProps) {
       {Object.keys(score.perDomain).length > 0 && (
         <div>
           <h3 className="mb-2 text-sm font-semibold text-terminal-dim">
-            Performance par domaine
+            {t("perDomain")}
           </h3>
           <ul className="space-y-1 text-sm">
             {Object.entries(score.perDomain).map(([domain, stats]) => {
@@ -66,7 +65,11 @@ export function ScoreSummary({ score }: ScoreSummaryProps) {
                   key={domain}
                   className="flex items-center justify-between gap-3"
                 >
-                  <span>{DOMAIN_LABEL[domain] ?? domain}</span>
+                  <span>
+                    {tDomain(
+                      domain as Parameters<typeof tDomain>[0]
+                    )}
+                  </span>
                   <span className="tabular-nums text-terminal-dim">
                     {stats.correct}/{stats.total} ({pct}%)
                   </span>
@@ -82,19 +85,19 @@ export function ScoreSummary({ score }: ScoreSummaryProps) {
           href="/session"
           className="rounded bg-terminal-accent px-4 py-2 text-sm font-semibold text-terminal-bg hover:opacity-90"
         >
-          Rejouer
+          {t("replay")}
         </Link>
         <Link
           href="/dashboard"
           className="rounded border border-terminal-dim/60 px-4 py-2 text-sm hover:border-terminal-fg"
         >
-          Voir le dashboard
+          {t("viewDashboard")}
         </Link>
         <Link
           href="/"
           className="rounded border border-terminal-dim/60 px-4 py-2 text-sm hover:border-terminal-fg"
         >
-          Retour à l'accueil
+          {t("backHome")}
         </Link>
       </div>
     </section>

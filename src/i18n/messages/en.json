@@ -1,0 +1,102 @@
+{
+  "common": {
+    "appName": "CKA-Sim",
+    "appAbbr": "Certified Kubernetes Administrator",
+    "back": "Back",
+    "home": "Home",
+    "exit": "Exit"
+  },
+  "home": {
+    "tagline": "A dexterity simulator for the <abbr>CKA</abbr> certification.",
+    "intro": "No cluster to spin up, no €50 mock exam. Just: a scenario, a command, a chrono.",
+    "whyTitle": "Why a dexterity simulator?",
+    "whyP1": "The CKA gives you 2h for ~15-20 tasks on a real cluster. Your kubectl typing speed (alias <c>k</c>, <c>--dry-run=client -o yaml</c>, <c>-n</c>, JSONPath…) decides whether you finish in time or run out.",
+    "whyP2": "This tool drills that exact reflex. It will later extend to shell and vi (the other silent CKA bottlenecks).",
+    "startSession": "Start a session",
+    "viewDashboard": "View my dashboard",
+    "questionCount": "{count} questions available · {limit}s per question",
+    "footerStatus": "Status: through Sprint 2 (kubectl + persistence).",
+    "sourceLink": "Source code",
+    "roadmapLink": "Roadmap"
+  },
+  "session": {
+    "promptPlaceholder": "kubectl ...",
+    "promptAriaLabel": "Command to run",
+    "skip": "Skip",
+    "submitHint": "Enter to submit · Esc-equivalent: « Skip » button",
+    "scoreboard": "{correct} ✓ · {wrong} ✗"
+  },
+  "question": {
+    "indexLabel": "Q {index}/{total}",
+    "difficultyAria": "Difficulty {n} out of 5",
+    "k8sVersion": "k8s v{version}",
+    "hintIcon": "💡",
+    "revealHint": "Reveal a hint ({revealed}/{total}, score penalty)",
+    "domains": {
+      "cluster-architecture": "Architecture & RBAC",
+      "workloads-scheduling": "Workloads & Scheduling",
+      "services-networking": "Services & Networking",
+      "storage": "Storage",
+      "troubleshooting": "Troubleshooting",
+      "other": "Other"
+    }
+  },
+  "feedback": {
+    "correct": "✓ Correct.",
+    "incorrect": "✗ Not quite.",
+    "yourInput": "Your input:",
+    "expected": "Expected command:"
+  },
+  "score": {
+    "headline": "Score: {correct} / {total} ({percent}%)",
+    "verdictExcellent": "Excellent — you're ready for this kind of question.",
+    "verdictGood": "Not bad. A few areas to work on.",
+    "verdictWork": "There's a way to go, but that's why you train.",
+    "totalTime": "Total time",
+    "averageTime": "Avg time / question",
+    "perDomain": "Performance by domain",
+    "replay": "Replay",
+    "viewDashboard": "View dashboard",
+    "backHome": "Back to home"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Your progress over the last {count} sessions.",
+    "emptyTitle": "Nothing yet.",
+    "empty": "No completed sessions yet. Start one and come back here to see your progress.",
+    "newSession": "New session",
+    "exportData": "Export",
+    "stats": {
+      "sessions": "Sessions",
+      "correctRate": "Correct rate",
+      "averageTime": "Avg time",
+      "streak": "Streak",
+      "perQuestion": "per question",
+      "streakDays": "{n}d",
+      "streakKeep": "🔥 keep it up",
+      "streakStart": "play every day"
+    },
+    "scoreCurveTitle": "Score across your last {count} sessions",
+    "heatmapTitle": "Performance by domain × difficulty",
+    "topMissedTitle": "Top 10 questions to revisit",
+    "recentTitle": "Recent sessions",
+    "topMissedEmpty": "No questions missed yet. 🎯",
+    "scoreCurveEmpty": "No data yet."
+  },
+  "about": {
+    "title": "About & Roadmap",
+    "intro": "CKA-Sim is a <strong>local-first</strong> dexterity simulator for the CKA certification. Command validation is deterministic (regex); an AI tutor (Claude OAuth or OpenRouter) will land as an enrichment layer, grounded on the official documentation via RAG.",
+    "roadmapTitle": "Roadmap",
+    "sprint1": "Sprint 1 — Pure kubectl dexterity: scenario → command → chrono. Regex validation. Done.",
+    "sprint2": "Sprint 2 (current) — Persistence: SQLite runs/attempts + personal dashboard.",
+    "sprint3": "Sprint 3 — AI tutor (Claude OAuth + OpenRouter), post-answer feedback, no RAG yet (can hallucinate).",
+    "sprint4": "Sprint 4 — Doc-grounded RAG (sqlite-vec + local/OpenRouter embeddings), citations in answers.",
+    "sprint5": "Sprint 5 — Shell and vi extensions (codemirror-vim) with keystroke-efficiency scoring.",
+    "sprint6": "Sprint 6 — Custom web sources + admin ingestion UI."
+  },
+  "language": {
+    "switchTo": "Switch to {locale}",
+    "english": "English",
+    "french": "Français"
+  }
+}

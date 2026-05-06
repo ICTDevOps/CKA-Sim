@@ -47,7 +47,9 @@ export function startSession(
 export function revealHint(state: SessionState): SessionState {
   if (state.status !== "playing") return state;
   const question = currentQuestion(state);
-  const max = question.hints?.length ?? 0;
+  // Le nombre d'indices est le même dans toutes les locales par invariant
+  // de schéma ; on prend `en` comme référence sans dépendre de la locale.
+  const max = question.hints?.en.length ?? 0;
   if (state.hintsRevealed >= max) return state;
   return { ...state, hintsRevealed: state.hintsRevealed + 1 };
 }

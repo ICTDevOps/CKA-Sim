@@ -1,16 +1,24 @@
 import type { MissedQuestion } from "@/lib/db/repositories/stats";
 import type { Question } from "@/lib/questions";
+import { localized, type Locale } from "@/lib/questions/types";
 
 interface TopMissedProps {
   missed: MissedQuestion[];
   questions: Question[];
+  locale: Locale;
+  emptyLabel: string;
 }
 
-export function TopMissed({ missed, questions }: TopMissedProps) {
+export function TopMissed({
+  missed,
+  questions,
+  locale,
+  emptyLabel
+}: TopMissedProps) {
   if (missed.length === 0) {
     return (
       <div className="rounded-lg border border-terminal-dim/40 bg-black/30 p-4 text-sm text-terminal-dim">
-        Aucune question ratée pour le moment. 🎯
+        {emptyLabel}
       </div>
     );
   }
@@ -24,7 +32,7 @@ export function TopMissed({ missed, questions }: TopMissedProps) {
           <li key={m.questionId} className="px-4 py-2">
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-terminal-fg">
-                {q?.scenario ?? m.questionId}
+                {q ? localized(q.scenario, locale) : m.questionId}
               </span>
               <span className="whitespace-nowrap text-xs tabular-nums text-terminal-ko">
                 {m.missed}/{m.total} ({m.missRate}%)
