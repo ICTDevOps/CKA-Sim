@@ -11,6 +11,20 @@ font la différence entre réussir le CKA dans le temps imparti et tomber court.
 
 ---
 
+## 📸 Aperçu
+
+| Accueil | Session — question |
+| :---: | :---: |
+| ![Accueil](./public/screenshots/01-home.png) | ![Session active](./public/screenshots/02-session-question.png) |
+| **Feedback après une bonne réponse** | **Score de fin de session** |
+| ![Feedback correct](./public/screenshots/03-session-feedback.png) | ![Récapitulatif](./public/screenshots/04-score-summary.png) |
+
+**Dashboard personnel** — courbe de score, heatmap domaine × difficulté, streak, top des questions ratées :
+
+![Dashboard](./public/screenshots/05-dashboard.png)
+
+---
+
 ## 🎯 Pourquoi ce projet
 
 Le CKA, c'est 2 h pour ~15-20 tâches sur cluster réel. Beaucoup d'échecs ne
@@ -29,7 +43,7 @@ moteur qui s'acquiert par la répétition courte et chronométrée.
 
 ---
 
-## ✨ Ce que fait l'outil aujourd'hui (Sprint 1 — MVP)
+## ✨ Ce que fait l'outil aujourd'hui (jusqu'au Sprint 2)
 
 - 20 questions kubectl couvrant les 5 domaines officiels du CKA
 - Chrono de 60 s par question, score en fin de session
@@ -37,9 +51,14 @@ moteur qui s'acquiert par la répétition courte et chronométrée.
   `-n`/`--namespace`, position des flags, alias `k`/`kubectl`, etc.)
 - Indices révélables avec pénalité
 - Récapitulatif par domaine pour identifier les points faibles
-- 100 % local-first : aucune donnée n'est envoyée nulle part
+- **Historique persistant** avec dashboard personnel : courbe de score,
+  heatmap par domaine × difficulté, streak quotidien, top 10 des questions
+  les plus ratées
+- **Export JSON** de tout ton historique (`/api/me/export`)
+- 100 % local-first : base SQLite sur disque, utilisateur local anonyme via
+  cookie, pas d'auth, aucun service distant
 
-> 🚧 Pas encore : tuteur IA, RAG, persistance, shell/vi, leaderboard.
+> 🚧 Pas encore : tuteur IA, RAG, shell/vi, leaderboard.
 > Voir [ROADMAP](./docs/ROADMAP.md).
 
 ---
@@ -132,14 +151,25 @@ auto-décrivante :
 
 | Sprint | Objectif                                                       | Statut    |
 | -----: | -------------------------------------------------------------- | --------- |
-|      1 | Dextérité kubectl pure (validation regex, chrono)              | ✅ MVP    |
-|      2 | Persistance : runs/attempts SQLite + dashboard perso           | À venir   |
+|      1 | Dextérité kubectl pure (validation regex, chrono)              | ✅ Fait   |
+|      2 | Persistance : runs/attempts SQLite + dashboard perso           | ✅ Fait   |
 |      3 | Tuteur IA (Claude OAuth + OpenRouter), feedback post-réponse   | À venir   |
 |      4 | RAG ancré sur la doc K8s (sqlite-vec + embeddings)             | À venir   |
 |      5 | Extensions shell + vi (codemirror-vim, scoring efficacité)     | À venir   |
 |      6 | Sources web custom + UI admin d'ingestion                      | À venir   |
 
 📖 Détails par sprint : [docs/ROADMAP.md](./docs/ROADMAP.md).
+
+---
+
+## 💾 Où vivent tes données
+
+- Base SQLite locale à `./data/app.db` (override via `CKA_SIM_DATA_DIR`).
+- Un identifiant anonyme est stocké dans le cookie `cka-sim-uid`. Effacer
+  les cookies = repartir de zéro.
+- Pour Docker, monte `/app/data` en volume pour conserver tes runs lors
+  des upgrades du container.
+- Backup ponctuel : `curl -b 'cka-sim-uid=...' http://localhost:3000/api/me/export > backup.json`.
 
 ---
 

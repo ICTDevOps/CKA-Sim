@@ -21,18 +21,21 @@ next one unless the current one delivers real value as-is.
 
 ---
 
-## Sprint 2 — Persistence & personal dashboard
+## Sprint 2 — Persistence & personal dashboard ✅
 
 **Goal:** keep session history and identify weak spots.
 
-- [ ] SQLite setup (`better-sqlite3` server-side)
-- [ ] `users / runs / attempts` schema
-- [ ] API routes: `POST /api/runs`, `POST /api/runs/:id/attempts`,
-      `PATCH /api/runs/:id/end`, `GET /api/stats/me`
-- [ ] `/dashboard` page: score curve, category × difficulty heatmap,
-      streak, top 10 most-missed questions
-- [ ] Light anti-cheat (server-side validation, plausibility checks)
-- [ ] JSON export of history (`GET /api/me/export`)
+- [x] SQLite setup (`better-sqlite3` server-side, WAL, lazy migrations)
+- [x] `users / runs / attempts` schema
+- [x] API routes: `POST /api/runs`, `POST /api/runs/:id/attempts`,
+      `PATCH /api/runs/:id/end`, `GET /api/me/export`
+- [x] Cookie-based local user (anonymous, persisted via Next.js middleware)
+- [x] `/dashboard` page: score curve, domain × difficulty heatmap, streak,
+      top 10 most-missed questions, recent runs
+- [x] JSON export of history (`GET /api/me/export`)
+- [ ] Light anti-cheat (server-side re-validation) — deferred to when
+      Niveau 2 (multi-user / leaderboard) lands; not needed for the local
+      single-user MVP
 
 **Deliverable:** the user sees their progress over time.
 

@@ -12,6 +12,20 @@ between passing the CKA in time and running out of it.
 
 ---
 
+## 📸 Preview
+
+| Home | Session — question |
+| :---: | :---: |
+| ![Home page](./public/screenshots/01-home.png) | ![Active session](./public/screenshots/02-session-question.png) |
+| **Feedback after a correct answer** | **End-of-session score** |
+| ![Correct feedback](./public/screenshots/03-session-feedback.png) | ![Score summary](./public/screenshots/04-score-summary.png) |
+
+**Personal dashboard** — score curve, domain × difficulty heatmap, streak, top missed questions:
+
+![Dashboard](./public/screenshots/05-dashboard.png)
+
+---
+
 ## 🎯 Why this project
 
 The CKA is 2 hours for ~15-20 tasks on a real cluster. Many failures are not
@@ -29,7 +43,7 @@ chronometered repetition.
 
 ---
 
-## ✨ What it does today (Sprint 1 — MVP)
+## ✨ What it does today (through Sprint 2)
 
 - 20 kubectl questions covering all 5 official CKA domains
 - 60-second chrono per question, end-of-session score
@@ -37,9 +51,13 @@ chronometered repetition.
   `-n`/`--namespace`, flag order, `k`/`kubectl` alias, etc.)
 - Hint system with score penalty
 - Per-domain breakdown to identify weak spots
-- 100% local-first: no data is sent anywhere
+- **Persistent history** with a personal dashboard: score curve, heatmap by
+  domain × difficulty, day streak, top 10 most-missed questions
+- **JSON export** of your full history (`/api/me/export`)
+- 100% local-first: SQLite database on disk, anonymous local user via
+  cookie, no auth, no remote service
 
-> 🚧 Not yet: AI tutor, RAG, persistence, shell/vi, leaderboard.
+> 🚧 Not yet: AI tutor, RAG, shell/vi, leaderboard.
 > See the [ROADMAP](./docs/ROADMAP.md).
 
 ---
@@ -132,14 +150,26 @@ self-describing:
 
 | Sprint | Goal                                                              | Status    |
 | -----: | ----------------------------------------------------------------- | --------- |
-|      1 | Pure kubectl dexterity (regex validation, chrono)                 | ✅ MVP    |
-|      2 | Persistence: SQLite runs/attempts + personal dashboard            | Upcoming  |
+|      1 | Pure kubectl dexterity (regex validation, chrono)                 | ✅ Done   |
+|      2 | Persistence: SQLite runs/attempts + personal dashboard            | ✅ Done   |
 |      3 | AI tutor (Claude OAuth + OpenRouter), post-answer feedback        | Upcoming  |
 |      4 | Doc-grounded RAG (sqlite-vec + embeddings)                        | Upcoming  |
 |      5 | Shell + vi extensions (codemirror-vim, keystroke-efficiency)      | Upcoming  |
 |      6 | Custom web sources + admin ingestion UI                           | Upcoming  |
 
 📖 Per-sprint details: [docs/ROADMAP.md](./docs/ROADMAP.md).
+
+---
+
+## 💾 Where your data lives
+
+- Local SQLite database at `./data/app.db` (override with
+  `CKA_SIM_DATA_DIR`).
+- An anonymous user id is stored in the `cka-sim-uid` cookie. Clearing
+  cookies = starting over.
+- For Docker, mount `/app/data` as a volume to persist runs across
+  container upgrades.
+- One-shot backup: `curl -b 'cka-sim-uid=...' http://localhost:3000/api/me/export > backup.json`.
 
 ---
 

@@ -85,6 +85,12 @@ export function ScoreSummary({ score }: ScoreSummaryProps) {
           Rejouer
         </Link>
         <Link
+          href="/dashboard"
+          className="rounded border border-terminal-dim/60 px-4 py-2 text-sm hover:border-terminal-fg"
+        >
+          Voir le dashboard
+        </Link>
+        <Link
           href="/"
           className="rounded border border-terminal-dim/60 px-4 py-2 text-sm hover:border-terminal-fg"
         >
