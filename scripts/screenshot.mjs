@@ -13,8 +13,100 @@
 // Le script tourne deux fois — une fois en /en, une fois en /fr — et produit
 // des PNG suffixés par locale dans public/screenshots/.
 import { chromium } from "playwright";
-import { mkdirSync, readFileSync } from "node:fs";
+import Database from "better-sqlite3";
+import * as sqliteVec from "sqlite-vec";
+import { mkdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
+
+function seedDemoSources(userId) {
+  // Create the kb-user.db ourselves with the local-bge-small schema if the
+  // server hasn't done it yet. The shape must match
+  // src/lib/kb/user-db.ts::initSchema.
+  mkdirSync(resolve("data"), { recursive: true });
+  const path = resolve("data/kb-user.db");
+  const db = new Database(path);
+  db.pragma("journal_mode = WAL");
+  sqliteVec.load(db);
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
+    CREATE TABLE IF NOT EXISTS sources (
+      id              TEXT PRIMARY KEY,
+      url             TEXT NOT NULL,
+      display_name    TEXT,
+      added_by        TEXT,
+      added_at        INTEGER NOT NULL,
+      last_fetched_at INTEGER,
+      last_etag       TEXT,
+      last_modified   TEXT,
+      content_hash    TEXT,
+      status          TEXT NOT NULL DEFAULT 'pending',
+      error           TEXT,
+      chunk_count     INTEGER NOT NULL DEFAULT 0
+    );
+    CREATE TABLE IF NOT EXISTS chunks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      source_id      TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
+      source_url     TEXT NOT NULL,
+      source_section TEXT NOT NULL,
+      content        TEXT NOT NULL
+    );
+    CREATE VIRTUAL TABLE IF NOT EXISTS chunks_vec USING vec0(embedding float[384]);
+  `);
+  db.exec("DELETE FROM sources;");
+  const insert = db.prepare(
+    `INSERT INTO sources
+      (id, url, display_name, added_by, added_at, last_fetched_at,
+       status, chunk_count)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  const now = Date.now();
+  const fixtures = [
+    {
+      id: "demo-1",
+      url: "https://kubernetes.io/docs/reference/kubectl/cheatsheet/",
+      name: "kubectl cheatsheet",
+      status: "ok",
+      chunks: 14,
+      fetched: now - 6 * 60 * 60 * 1000
+    },
+    {
+      id: "demo-2",
+      url: "https://kubernetes.io/docs/concepts/security/rbac-good-practices/",
+      name: null,
+      status: "ok",
+      chunks: 9,
+      fetched: now - 26 * 60 * 60 * 1000
+    },
+    {
+      id: "demo-3",
+      url: "https://example.test/missing-page",
+      name: "Demo error page",
+      status: "error",
+      chunks: 0,
+      fetched: now - 2 * 60 * 1000,
+      error: "HTTP 404 fetching https://example.test/missing-page"
+    }
+  ];
+  for (const f of fixtures) {
+    insert.run(
+      f.id,
+      f.url,
+      f.name,
+      userId,
+      now,
+      f.fetched,
+      f.status,
+      f.chunks
+    );
+    if (f.error) {
+      db.prepare("UPDATE sources SET error = ? WHERE id = ?").run(
+        f.error,
+        f.id
+      );
+    }
+  }
+  db.close();
+}
 
 const OUT_DIR = resolve("public/screenshots");
 mkdirSync(OUT_DIR, { recursive: true });
@@ -182,7 +274,7 @@ async function captureLocale(locale) {
 
 async function captureSettings(locale) {
   const context = await browser.newContext({
-    viewport: { width: 1280, height: 1100 },
+    viewport: { width: 1280, height: 1900 },
     deviceScaleFactor: 2,
     reducedMotion: "reduce",
     colorScheme: "dark"
@@ -194,6 +286,12 @@ async function captureSettings(locale) {
       waitUntil: "networkidle"
     });
     await page.waitForSelector("h1");
+    // Seed a few demo sources directly via the DB. We attribute them to
+    // the real cookie uid so the route's added_by filter returns them.
+    const cookies = await context.cookies();
+    const uid = cookies.find((c) => c.name === "cka-sim-uid")?.value;
+    if (uid) seedDemoSources(uid);
+    await page.reload({ waitUntil: "networkidle" });
 
     // Switch to OpenRouter to display the API key + model fields, then enable
     // the tutor and switch the embedding provider for a richer screenshot.

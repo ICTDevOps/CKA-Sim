@@ -32,6 +32,10 @@ between passing the CKA in time and running out of it.
 
 ![Vi editor](./public/screenshots/07-vi-editor.en.png)
 
+**Custom knowledge sources** — paste a public URL into Settings → Knowledge sources and the crawler fetches, extracts, chunks and embeds the page on the fly. The tutor's RAG retrieval merges these with the bundled Kubernetes docs:
+
+The settings screenshot above includes the Knowledge sources panel with three demo entries (one with a deliberate error to show how failures surface).
+
 ---
 
 ## 🎯 Why this project
@@ -108,6 +112,7 @@ own knowledge.
 | `npm run typecheck` | Run TypeScript type checking             |
 | `npm run lint`      | Run Next.js linter                       |
 | `npm run kb:build`  | Build the RAG vector index (`kb.db`)     |
+| `npm test`          | Run the vitest suite (51 tests)          |
 
 ---
 

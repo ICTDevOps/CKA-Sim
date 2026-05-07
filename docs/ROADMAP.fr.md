@@ -120,19 +120,30 @@ des alternatives idiomatiques.
 
 ---
 
-## Sprint 6 — Sources web custom + UI admin
+## Sprint 6 — Sources web custom + UI admin ✅
 
 **Objectif :** que l'utilisateur puisse enrichir la base de connaissance avec
 ses propres sources.
 
-- [ ] Schéma `sources` en DB
-- [ ] Crawler avec respect de `robots.txt`, User-Agent identifiable, rate
-      limiting
-- [ ] Détection incrémentale via `etag` / `If-Modified-Since` / `content_hash`
-- [ ] Extraction propre via Mozilla Readability + turndown
-- [ ] Page `Settings → Sources de connaissance`
-- [ ] Séparation `kb-bundled.db` (image) + `kb-user.db` (volume)
-- [ ] Scheduler interne au container (`node-cron`)
+- [x] Schéma `sources` en DB (dans `kb-user.db` writable, séparée de
+      `kb.db` bundled)
+- [x] Crawler avec User-Agent identifiable (`CKA-Sim/0.1 (+repo URL)`),
+      GET conditionnel (`If-None-Match` + `If-Modified-Since`),
+      dédupe par hash de contenu, cap sur la taille du body
+- [x] Extracteur HTML → texte léger (strip du chrome, scope sur
+      `<main>`/`<article>`, préserve les niveaux de heading en Markdown)
+- [x] Panneau `Paramètres → Sources de connaissance` avec ajout /
+      rafraîchir / supprimer
+- [x] Séparation `kb-bundled.db` (read-only, image) + `kb-user.db`
+      (volume) — la retrieval fusionne les résultats des deux, triés
+      par distance
+- [x] **Suite de 51 tests vitest** couvrant validators, engine,
+      loader, settings repo, HTML extractor, chunker, sources repo
+- [ ] Scheduler interne au container (`node-cron`) — le rafraîchissement
+      manuel via UI suffit au MVP ; auto-refresh reporté
+- [ ] Vérification `robots.txt` avant crawl — reporté (UA est
+      identifiable ; rate limit per-host à ajouter quand le nombre de
+      sources grandira)
 
 **Livrable :** l'utilisateur peut indexer son blog, sa doc d'équipe, etc.
 

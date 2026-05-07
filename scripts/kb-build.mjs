@@ -241,7 +241,8 @@ async function main() {
         vectors[i].byteOffset,
         vectors[i].byteLength
       );
-      insertVec.run(r.lastInsertRowid, blob);
+      // sqlite-vec needs SQLITE_INTEGER — BigInt is the safe bind type.
+      insertVec.run(BigInt(r.lastInsertRowid), blob);
     }
   });
   insertAll();

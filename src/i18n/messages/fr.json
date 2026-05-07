@@ -157,6 +157,20 @@
     "ragEnabled": "Utiliser le retrieval (RAG) lors des appels au tuteur",
     "ragEnabledHint": "Désactivé, le tuteur répond de mémoire — plus rapide mais plus sujet aux hallucinations.",
 
-    "futureNotice": "Le Sprint 3 branchera les vrais appels IA ; aujourd'hui cette page ne fait que persister tes préférences."
+    "sourcesSection": "Sources de connaissance",
+    "sourcesHint": "Ajoute des pages web publiques (une URL à la fois) pour enrichir le RAG. Les pages sont fetchées, extraites, chunkées et embeddées avec ton provider actif.",
+    "sourcesAddPlaceholder": "https://kubernetes.io/docs/...",
+    "sourcesNamePlaceholder": "Nom d'affichage (optionnel)",
+    "sourcesAdd": "Ajouter",
+    "sourcesAdding": "Téléchargement…",
+    "sourcesEmpty": "Aucune source ajoutée.",
+    "sourcesRefresh": "Rafraîchir",
+    "sourcesDelete": "Supprimer",
+    "sourcesStatusOk": "{n} chunks · dernier fetch {when}",
+    "sourcesStatusPending": "en attente",
+    "sourcesStatusError": "erreur : {error}",
+    "sourcesNeverFetched": "jamais",
+
+    "futureNotice": "Astuce : les changements s'appliquent à la prochaine session. Le tuteur IA utilise ces paramètres uniquement quand il est activé hors mode examen."
   }
 }
