@@ -96,15 +96,25 @@ des alternatives idiomatiques.
 
 ---
 
-## Sprint 5 — Extensions shell + vi
+## Sprint 5 — Extensions shell + vi ✅
 
 **Objectif :** étendre la dextérité aux deux autres goulots du CKA.
 
-- [ ] Catégorie `shell` : 30 questions sur grep/awk/sed/jq/yq/systemctl/...
-- [ ] Catégorie `vi` : éditeur codemirror-vim intégré
-- [ ] Validation `vi` : comparaison de buffer attendu (avec multi-cibles)
-- [ ] **Scoring keystroke-efficiency** (ratio `optimalKeystrokes / actual`)
-- [ ] Filtres de session par catégorie
+- [x] Catégorie `shell` : 20 questions seed sur
+      grep/awk/sed/cut/jq/yq/systemctl/journalctl/find/ss/curl/openssl/tar/base64/ps/lsof/dig
+- [x] Catégorie `vi` : éditeur CodeMirror 6 + `@replit/codemirror-vim`
+      intégré, avec numéros de ligne, ligne active surlignée, modes
+      vim normal/insert/visuel, historique
+- [x] `ViValidator` : comparaison de buffer avec support multi-cibles
+      (tableau `expectedBuffer`) et tolérance trailing newline
+- [x] **Scoring keystroke-efficiency** : ratio
+      `optimalKeystrokes / actual` affiché dans le feedback ;
+      les deux valeurs persistées dans `attempts` pour analyses futures
+- [x] `DispatchValidator` route les vi vers `ViValidator` et les
+      commandes vers `RegexValidator`
+- [ ] Filtres de session par catégorie dans l'UI — reporté (le moteur
+      et le loader acceptent déjà un `QuestionFilter` ; seule l'UI
+      du picker reste à câbler)
 
 **Livrable :** un entraînement complet qui couvre kubectl + shell + vi.
 

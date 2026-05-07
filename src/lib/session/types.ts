@@ -10,6 +10,10 @@ export interface AttemptRecord {
   timeMs: number;
   /** Timestamp d'envoi de la réponse (epoch ms). */
   submittedAt: number;
+  /** vi-only: keystrokes the user actually pressed during the question. */
+  keystrokes?: number;
+  /** vi-only: optimal keystroke count from the question definition. */
+  optimalKeystrokes?: number;
 }
 
 export interface SessionConfig {

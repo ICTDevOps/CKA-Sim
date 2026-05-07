@@ -1,18 +1,23 @@
 import kubectlQuestions from "@/data/questions/kubectl.json";
+import shellQuestions from "@/data/questions/shell.json";
+import viQuestions from "@/data/questions/vi.json";
 import type { Question } from "./types";
 
 /**
- * Charge toutes les questions disponibles. Pour le MVP, les questions sont
- * chargées depuis des fichiers JSON statiques bundlés avec l'app.
- *
- * Plus tard : chargement depuis SQLite (pour la base utilisateur), ou depuis
- * un endpoint API pour les questions générées par l'IA.
+ * Loads all bundled questions across categories. Sprint 5 added shell and
+ * vi categories alongside kubectl. The loader stays a single function so
+ * filtering/shuffling at the call site can mix categories naturally.
  */
 export function loadAllQuestions(): Question[] {
-  return kubectlQuestions as Question[];
+  return [
+    ...(kubectlQuestions as Question[]),
+    ...(shellQuestions as Question[]),
+    ...(viQuestions as Question[])
+  ];
 }
 
 export interface QuestionFilter {
+  categories?: Array<"kubectl" | "shell" | "vi">;
   domains?: string[];
   difficultyMax?: number;
   tags?: string[];
@@ -23,6 +28,8 @@ export function filterQuestions(
   filter: QuestionFilter
 ): Question[] {
   return questions.filter((q) => {
+    if (filter.categories && !filter.categories.includes(q.category))
+      return false;
     if (filter.domains && !filter.domains.includes(q.domain)) return false;
     if (filter.difficultyMax && q.difficulty > filter.difficultyMax)
       return false;
@@ -34,11 +41,6 @@ export function filterQuestions(
   });
 }
 
-/**
- * Mélange une liste de questions avec un algorithme Fisher-Yates.
- * Si une seed est fournie, le mélange est déterministe (pratique pour les
- * tests, ou pour rejouer une session identique).
- */
 export function shuffle<T>(items: T[], seed?: number): T[] {
   const arr = [...items];
   let rng: () => number;

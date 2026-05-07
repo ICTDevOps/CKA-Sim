@@ -25,7 +25,9 @@
     "promptAriaLabel": "Commande à exécuter",
     "skip": "Passer",
     "submitHint": "Entrée pour valider · Échap-équivalent : bouton « Passer »",
-    "scoreboard": "{correct} ✓ · {wrong} ✗"
+    "scoreboard": "{correct} ✓ · {wrong} ✗",
+    "viSubmit": "Soumettre le buffer",
+    "viHint": "Édite avec les raccourcis vim · Soumets quand tu as fini"
   },
   "question": {
     "indexLabel": "Q {index}/{total}",
@@ -46,7 +48,11 @@
     "correct": "✓ Correct.",
     "incorrect": "✗ Pas tout à fait.",
     "yourInput": "Ta saisie :",
-    "expected": "Commande attendue :"
+    "expected": "Commande attendue :",
+    "expectedBuffer": "Buffer attendu :",
+    "yourBuffer": "Ton buffer :",
+    "keystrokes": "Frappes : {actual} (optimal {optimal}, ratio {ratio})",
+    "keystrokesNoOptimal": "Frappes : {actual}"
   },
   "tutor": {
     "title": "Tuteur IA",

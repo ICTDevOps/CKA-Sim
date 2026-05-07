@@ -25,7 +25,9 @@
     "promptAriaLabel": "Command to run",
     "skip": "Skip",
     "submitHint": "Enter to submit · Esc-equivalent: « Skip » button",
-    "scoreboard": "{correct} ✓ · {wrong} ✗"
+    "scoreboard": "{correct} ✓ · {wrong} ✗",
+    "viSubmit": "Submit buffer",
+    "viHint": "Edit with vim bindings · Submit when you're done"
   },
   "question": {
     "indexLabel": "Q {index}/{total}",
@@ -46,7 +48,11 @@
     "correct": "✓ Correct.",
     "incorrect": "✗ Not quite.",
     "yourInput": "Your input:",
-    "expected": "Expected command:"
+    "expected": "Expected command:",
+    "expectedBuffer": "Expected buffer:",
+    "yourBuffer": "Your buffer:",
+    "keystrokes": "Keystrokes: {actual} (optimal {optimal}, ratio {ratio})",
+    "keystrokesNoOptimal": "Keystrokes: {actual}"
   },
   "tutor": {
     "title": "AI tutor",

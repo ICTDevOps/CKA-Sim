@@ -24,9 +24,13 @@ between passing the CKA in time and running out of it.
 
 ![Dashboard](./public/screenshots/05-dashboard.en.png)
 
-**Settings** — pick the AI tutor provider (Claude OAuth or OpenRouter), the embedding backend (local bge-small or OpenRouter), and toggle exam mode / RAG. Keys stay on your device:
+**Settings** — pick the AI tutor provider (Anthropic API or OpenRouter), the embedding backend (local bge-small or OpenRouter), and toggle exam mode / RAG. Keys stay on your device:
 
 ![Settings](./public/screenshots/06-settings.en.png)
+
+**Vi editor** — vi-category questions ship a real vim-mode CodeMirror editor with line numbers, normal/insert modes, and a keystroke counter that scores efficiency vs. an optimal solution after submit:
+
+![Vi editor](./public/screenshots/07-vi-editor.en.png)
 
 ---
 
