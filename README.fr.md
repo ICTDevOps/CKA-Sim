@@ -55,23 +55,58 @@ moteur qui s'acquiert par la répétition courte et chronométrée.
 
 ---
 
-## ✨ Ce que fait l'outil aujourd'hui (jusqu'au Sprint 2)
+## ✨ Ce que fait l'outil aujourd'hui
 
+La roadmap originale en 6 sprints est livrée.
+
+**Base de questions (48 questions seed, 3 catégories)**
 - 20 questions kubectl couvrant les 5 domaines officiels du CKA
-- Chrono de 60 s par question, score en fin de session
-- Validation **déterministe** par regex (gère les variantes courantes :
-  `-n`/`--namespace`, position des flags, alias `k`/`kubectl`, etc.)
-- Indices révélables avec pénalité
-- Récapitulatif par domaine pour identifier les points faibles
-- **Historique persistant** avec dashboard personnel : courbe de score,
-  heatmap par domaine × difficulté, streak quotidien, top 10 des questions
-  les plus ratées
-- **Export JSON** de tout ton historique (`/api/me/export`)
-- 100 % local-first : base SQLite sur disque, utilisateur local anonyme via
-  cookie, pas d'auth, aucun service distant
+- 20 questions shell (grep / awk / sed / jq / yq / systemctl /
+  journalctl / find / ss / curl / openssl / tar / base64 / ps / lsof / dig)
+- 8 questions vi avec un vrai éditeur CodeMirror + vim et un scoring
+  d'efficacité de frappe (ratio `optimal / réel`)
 
-> 🚧 Pas encore : tuteur IA, RAG, shell/vi, leaderboard.
-> Voir [ROADMAP](./docs/ROADMAP.md).
+**Moteur**
+- Chrono de 60 s par question, score en fin de session
+- Validation **déterministe** : regex pour les commandes, comparaison
+  de buffer pour vi (normalisation CRLF, multi-cibles, tolérance
+  trailing newline)
+- Système d'indices avec pénalité au score
+- Mode examen (chrono pur, comme le vrai CKA — désactive l'IA)
+
+**Tuteur IA (BYOK)**
+- Explications streamées après chaque réponse (Server-Sent Events)
+- Deux providers derrière une seule interface : **API Anthropic**
+  (`x-api-key`) et **OpenRouter** (n'importe quel modèle de chat supporté)
+- System prompt verrouillé : réponses courtes, exam-focused, dans la
+  langue de l'utilisateur
+
+**RAG ancré sur la doc**
+- `kb.db` embarqué, généré depuis `kb/*.md` aligné sur les questions
+- Sources custom : tu colles une URL publique, le crawler fetche /
+  extrait / chunk / embedde la page à la volée dans un `kb-user.db`
+  writable
+- La retrieval fusionne les deux index par distance et affiche des
+  citations cliquables sous le streaming
+- Providers d'embedding : `bge-small-en` local (in-process, sans clé)
+  ou OpenRouter (`text-embedding-3-small/large`, `qwen3-embedding-0.6b`)
+
+**Persistance + dashboard**
+- Historique SQLite des runs et attempts, indexé par cookie uid anonyme
+- Dashboard avec courbe de score, heatmap domaine × difficulté, streak
+  quotidien, top 10 des questions ratées
+- Export JSON de tout l'historique (`/api/me/export`)
+
+**Bilingue**
+- UI complète EN/FR via next-intl, URLs locale-préfixées, switcher de
+  langue
+- Énoncés, indices et explications des questions traduits
+
+**Qualité**
+- Suite de 51 tests [vitest](https://vitest.dev) couvrant validators,
+  engine, loader, settings repo, crawler, sources repo
+- 100 % local-first : rien ne sort de la machine sans un appel BYOK
+  explicite à un provider que tu as choisi
 
 ---
 
@@ -176,16 +211,40 @@ auto-décrivante :
 
 ---
 
-## 🗺 Roadmap résumée
+## 🗺 Roadmap
 
-| Sprint | Objectif                                                       | Statut    |
-| -----: | -------------------------------------------------------------- | --------- |
-|      1 | Dextérité kubectl pure (validation regex, chrono)              | ✅ Fait   |
-|      2 | Persistance : runs/attempts SQLite + dashboard perso           | ✅ Fait   |
-|      3 | Tuteur IA (Claude OAuth + OpenRouter), feedback post-réponse   | À venir   |
-|      4 | RAG ancré sur la doc K8s (sqlite-vec + embeddings)             | À venir   |
-|      5 | Extensions shell + vi (codemirror-vim, scoring efficacité)     | À venir   |
-|      6 | Sources web custom + UI admin d'ingestion                      | À venir   |
+La roadmap originale en 6 sprints est livrée. Les itérations futures
+sont listées dans la section « Backlog » plus bas.
+
+| Sprint | Objectif                                                          | Statut  |
+| -----: | ----------------------------------------------------------------- | ------- |
+|      1 | Dextérité kubectl pure (validation regex, chrono)                 | ✅ Fait |
+|    1.5 | Bilingue EN/FR via `next-intl` (URLs locale-préfixées)            | ✅ Fait |
+|      2 | Persistance : runs/attempts SQLite + dashboard perso              | ✅ Fait |
+|      3 | Tuteur IA (streaming OpenRouter, feedback post-réponse)           | ✅ Fait |
+|    3.1 | Provider API Anthropic (`x-api-key`) porté depuis dash-pass       | ✅ Fait |
+|      4 | RAG ancré sur la doc (`sqlite-vec` + embeddings local/OpenRouter) | ✅ Fait |
+|      5 | Extensions shell + vi (CodeMirror vim, keystroke-efficiency)      | ✅ Fait |
+|      6 | Sources web custom + crawler + suite de 51 tests vitest           | ✅ Fait |
+
+### Backlog (post-roadmap, à prioriser selon les retours)
+
+- **Mode lab** — exécution réelle des commandes contre un cluster
+  `kind` éphémère pour validation end-to-end
+- **Multi-utilisateur + leaderboard** (Niveau 2) — magic-link / GitHub
+  OAuth, leaderboards par catégorie et par domaine, re-validation
+  anti-cheat
+- **`robots.txt` + rate limiting per-host** dans le crawler quand le
+  nombre de sources grandit
+- **Auto-refresh `node-cron`** des sources utilisateur
+- **Filtres de session par catégorie** dans l'UI (le moteur et le
+  loader acceptent déjà un `QuestionFilter` ; il manque juste le picker)
+- **Comptage de keystrokes vim mode-aware** (le compteur actuel est un
+  proxy keydown — précis pour le ratio mais pas parfait)
+- **Génération de questions assistée par IA** validée en CI sur cluster
+  `kind` (auto-PRs)
+- **Autres certifications** — même moteur pour CKAD, CKS, Linux, Git,
+  Terraform, AWS CLI
 
 📖 Détails par sprint : [docs/ROADMAP.md](./docs/ROADMAP.md).
 
