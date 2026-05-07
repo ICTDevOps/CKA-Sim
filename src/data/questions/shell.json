@@ -1,0 +1,438 @@
+[
+  {
+    "id": "sh-grep-001",
+    "category": "shell",
+    "domain": "troubleshooting",
+    "scenario": {
+      "en": "From '/var/log/kubelet.log', show only lines containing 'level=error', case-insensitive.",
+      "fr": "Depuis '/var/log/kubelet.log', afficher uniquement les lignes contenant 'level=error', insensible à la casse."
+    },
+    "difficulty": 1,
+    "tags": ["grep", "logs"],
+    "challenge": {
+      "type": "command",
+      "expected": "grep -i level=error /var/log/kubelet.log",
+      "explanation": {
+        "en": "`-i` is case-insensitive. Use `-E` for ERE patterns, `-v` to invert.",
+        "fr": "`-i` rend la recherche insensible à la casse. `-E` active les regex étendues, `-v` inverse."
+      },
+      "acceptedPatterns": [
+        "^grep\\s+-i\\s+['\"]?level=error['\"]?\\s+/var/log/kubelet\\.log$",
+        "^grep\\s+--ignore-case\\s+['\"]?level=error['\"]?\\s+/var/log/kubelet\\.log$"
+      ]
+    }
+  },
+  {
+    "id": "sh-grep-002",
+    "category": "shell",
+    "domain": "troubleshooting",
+    "scenario": {
+      "en": "Tail '/var/log/syslog' and follow new lines containing 'kubelet'.",
+      "fr": "Suivre '/var/log/syslog' en temps réel pour les lignes contenant 'kubelet'."
+    },
+    "difficulty": 2,
+    "tags": ["tail", "grep", "logs"],
+    "challenge": {
+      "type": "command",
+      "expected": "tail -f /var/log/syslog | grep kubelet",
+      "acceptedPatterns": [
+        "^tail\\s+-f\\s+/var/log/syslog\\s*\\|\\s*grep\\s+(--line-buffered\\s+)?kubelet$",
+        "^tail\\s+--follow\\s+/var/log/syslog\\s*\\|\\s*grep\\s+kubelet$"
+      ]
+    }
+  },
+  {
+    "id": "sh-awk-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "Print only the second column of '/etc/passwd' (colon-separated).",
+      "fr": "Afficher uniquement la deuxième colonne de '/etc/passwd' (séparé par ':')."
+    },
+    "difficulty": 2,
+    "tags": ["awk"],
+    "challenge": {
+      "type": "command",
+      "expected": "awk -F: '{print $2}' /etc/passwd",
+      "explanation": {
+        "en": "`-F:` sets the field separator. `$1`, `$2`, … reference fields; `$0` is the whole line.",
+        "fr": "`-F:` fixe le séparateur de champs. `$1`, `$2`, … référencent les colonnes ; `$0` la ligne entière."
+      },
+      "acceptedPatterns": [
+        "^awk\\s+-F[:'\"]+:?[:'\"]*\\s*['\"]\\{\\s*print\\s+\\$2\\s*\\}['\"]?\\s+/etc/passwd$",
+        "^awk\\s+-F\\s*['\"]?:['\"]?\\s*['\"]\\{print\\s+\\$2\\}['\"]?\\s+/etc/passwd$",
+        "^awk\\s+'BEGIN\\{FS=\":\"\\}\\{print\\s+\\$2\\}'\\s+/etc/passwd$"
+      ]
+    }
+  },
+  {
+    "id": "sh-sed-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "In place, replace every occurrence of 'foo' with 'bar' in 'config.yaml'.",
+      "fr": "Remplacer en place toutes les occurrences de 'foo' par 'bar' dans 'config.yaml'."
+    },
+    "difficulty": 2,
+    "tags": ["sed"],
+    "challenge": {
+      "type": "command",
+      "expected": "sed -i 's/foo/bar/g' config.yaml",
+      "explanation": {
+        "en": "`-i` edits in place; the `g` flag at the end of the substitute applies to ALL occurrences on each line.",
+        "fr": "`-i` édite en place ; le flag `g` final applique la substitution à TOUTES les occurrences sur chaque ligne."
+      },
+      "acceptedPatterns": [
+        "^sed\\s+-i(?:\\s|=)?(?:''\\s+)?['\"]s/foo/bar/g['\"]?\\s+config\\.yaml$",
+        "^sed\\s+-i\\s+-e\\s+['\"]s/foo/bar/g['\"]?\\s+config\\.yaml$"
+      ]
+    }
+  },
+  {
+    "id": "sh-cut-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "From '/etc/passwd', print the first field (username), one per line.",
+      "fr": "Depuis '/etc/passwd', afficher le premier champ (nom d'utilisateur), un par ligne."
+    },
+    "difficulty": 1,
+    "tags": ["cut"],
+    "challenge": {
+      "type": "command",
+      "expected": "cut -d: -f1 /etc/passwd",
+      "acceptedPatterns": [
+        "^cut\\s+-d[:'\"]?:[:'\"]?\\s+-f\\s*1\\s+/etc/passwd$",
+        "^cut\\s+-d\\s*['\"]?:['\"]?\\s+-f1\\s+/etc/passwd$",
+        "^cut\\s+-d:\\s+-f1\\s+/etc/passwd$"
+      ]
+    }
+  },
+  {
+    "id": "sh-jq-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "Pretty-print 'cluster.json'.",
+      "fr": "Afficher 'cluster.json' formaté en pretty-print."
+    },
+    "difficulty": 1,
+    "tags": ["jq"],
+    "challenge": {
+      "type": "command",
+      "expected": "jq . cluster.json",
+      "acceptedPatterns": [
+        "^jq\\s+['\"]?\\.['\"]?\\s+cluster\\.json$",
+        "^cat\\s+cluster\\.json\\s*\\|\\s*jq\\s+['\"]?\\.['\"]?$"
+      ]
+    }
+  },
+  {
+    "id": "sh-jq-002",
+    "category": "shell",
+    "domain": "troubleshooting",
+    "scenario": {
+      "en": "From the JSON of `kubectl get pods -o json`, extract the names of pods whose phase is 'Running'.",
+      "fr": "À partir du JSON de `kubectl get pods -o json`, extraire les noms des pods dont le phase est 'Running'."
+    },
+    "difficulty": 4,
+    "tags": ["jq", "json"],
+    "hints": {
+      "en": ["`jq '.items[] | select(.status.phase == \"Running\") | .metadata.name'`"],
+      "fr": ["`jq '.items[] | select(.status.phase == \"Running\") | .metadata.name'`"]
+    },
+    "challenge": {
+      "type": "command",
+      "expected": "kubectl get pods -o json | jq '.items[] | select(.status.phase == \"Running\") | .metadata.name'",
+      "acceptedPatterns": [
+        "^(kubectl|k)\\s+get\\s+(pods?|po)\\s+-o\\s+json\\s*\\|\\s*jq\\s+['\"][^'\"]*select\\(\\s*\\.status\\.phase\\s*==\\s*\\\\?\"Running\\\\?\"\\s*\\)[^'\"]*\\.metadata\\.name['\"]$"
+      ]
+    }
+  },
+  {
+    "id": "sh-yq-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "From 'pod.yaml', print the value of '.spec.containers[0].image'.",
+      "fr": "Depuis 'pod.yaml', afficher la valeur de '.spec.containers[0].image'."
+    },
+    "difficulty": 2,
+    "tags": ["yq", "yaml"],
+    "challenge": {
+      "type": "command",
+      "expected": "yq '.spec.containers[0].image' pod.yaml",
+      "explanation": {
+        "en": "`yq` (Mike Farah's Go version) follows JSONPath-like syntax similar to `jq`.",
+        "fr": "`yq` (version Go de Mike Farah) suit une syntaxe proche de `jq`."
+      },
+      "acceptedPatterns": [
+        "^yq\\s+['\"]?\\.spec\\.containers\\[0\\]\\.image['\"]?\\s+pod\\.yaml$",
+        "^yq\\s+e\\s+['\"]?\\.spec\\.containers\\[0\\]\\.image['\"]?\\s+pod\\.yaml$",
+        "^yq\\s+eval\\s+['\"]?\\.spec\\.containers\\[0\\]\\.image['\"]?\\s+pod\\.yaml$"
+      ]
+    }
+  },
+  {
+    "id": "sh-systemctl-001",
+    "category": "shell",
+    "domain": "cluster-architecture",
+    "scenario": {
+      "en": "Restart the kubelet service.",
+      "fr": "Redémarrer le service kubelet."
+    },
+    "difficulty": 1,
+    "tags": ["systemctl", "kubelet"],
+    "challenge": {
+      "type": "command",
+      "expected": "sudo systemctl restart kubelet",
+      "acceptedPatterns": [
+        "^(sudo\\s+)?systemctl\\s+restart\\s+kubelet(\\.service)?$"
+      ]
+    }
+  },
+  {
+    "id": "sh-systemctl-002",
+    "category": "shell",
+    "domain": "cluster-architecture",
+    "scenario": {
+      "en": "Show the status of the kubelet service.",
+      "fr": "Afficher le statut du service kubelet."
+    },
+    "difficulty": 1,
+    "tags": ["systemctl", "kubelet"],
+    "challenge": {
+      "type": "command",
+      "expected": "systemctl status kubelet",
+      "acceptedPatterns": [
+        "^(sudo\\s+)?systemctl\\s+status\\s+kubelet(\\.service)?$"
+      ]
+    }
+  },
+  {
+    "id": "sh-journalctl-001",
+    "category": "shell",
+    "domain": "troubleshooting",
+    "scenario": {
+      "en": "Show the last 5 minutes of kubelet logs from journald.",
+      "fr": "Afficher les 5 dernières minutes de logs kubelet depuis journald."
+    },
+    "difficulty": 2,
+    "tags": ["journalctl", "kubelet"],
+    "challenge": {
+      "type": "command",
+      "expected": "journalctl -u kubelet --since \"5 min ago\"",
+      "explanation": {
+        "en": "`-u <unit>` filters by systemd unit. `--since` accepts free-form time strings.",
+        "fr": "`-u <unit>` filtre par unité systemd. `--since` accepte des chaînes de temps libres."
+      },
+      "acceptedPatterns": [
+        "^(sudo\\s+)?journalctl\\s+-u\\s+kubelet(\\.service)?\\s+--since\\s+['\"]?5 min(ute)? ago['\"]?$",
+        "^(sudo\\s+)?journalctl\\s+--unit[= ]kubelet(\\.service)?\\s+--since[= ]['\"]?5 min(ute)? ago['\"]?$"
+      ]
+    }
+  },
+  {
+    "id": "sh-find-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "Find every '*.yaml' file under '/etc/kubernetes' modified in the last 24h.",
+      "fr": "Trouver tous les fichiers '*.yaml' sous '/etc/kubernetes' modifiés dans les dernières 24h."
+    },
+    "difficulty": 3,
+    "tags": ["find"],
+    "challenge": {
+      "type": "command",
+      "expected": "find /etc/kubernetes -name '*.yaml' -mtime -1",
+      "explanation": {
+        "en": "`-mtime -1` matches files modified in the last 24 hours. `+1` would mean older than 24h.",
+        "fr": "`-mtime -1` matche les fichiers modifiés dans les dernières 24h. `+1` serait plus vieux que 24h."
+      },
+      "acceptedPatterns": [
+        "^find\\s+/etc/kubernetes\\s+-name\\s+['\"]?\\*\\.yaml['\"]?\\s+-mtime\\s+-1$",
+        "^find\\s+/etc/kubernetes\\s+-mtime\\s+-1\\s+-name\\s+['\"]?\\*\\.yaml['\"]?$",
+        "^find\\s+/etc/kubernetes\\s+-type\\s+f\\s+-name\\s+['\"]?\\*\\.yaml['\"]?\\s+-mtime\\s+-1$"
+      ]
+    }
+  },
+  {
+    "id": "sh-ss-001",
+    "category": "shell",
+    "domain": "services-networking",
+    "scenario": {
+      "en": "List all listening TCP sockets with the owning process.",
+      "fr": "Lister tous les sockets TCP en écoute avec le processus propriétaire."
+    },
+    "difficulty": 2,
+    "tags": ["ss", "network"],
+    "challenge": {
+      "type": "command",
+      "expected": "ss -tlnp",
+      "explanation": {
+        "en": "`-t` TCP, `-l` listening, `-n` numeric, `-p` show process. May need sudo to see process names.",
+        "fr": "`-t` TCP, `-l` écoute, `-n` numérique, `-p` montre le process. Peut nécessiter sudo."
+      },
+      "acceptedPatterns": [
+        "^(sudo\\s+)?ss\\s+-tlnp$",
+        "^(sudo\\s+)?ss\\s+-tnlp$",
+        "^(sudo\\s+)?ss\\s+-lntp$",
+        "^(sudo\\s+)?ss\\s+--tcp\\s+--listening\\s+--numeric\\s+--processes$"
+      ]
+    }
+  },
+  {
+    "id": "sh-curl-001",
+    "category": "shell",
+    "domain": "services-networking",
+    "scenario": {
+      "en": "From a node, hit the API server's healthz endpoint at https://127.0.0.1:6443/healthz, ignoring TLS verification.",
+      "fr": "Depuis un node, interroger le endpoint healthz de l'API server sur https://127.0.0.1:6443/healthz, en ignorant la vérification TLS."
+    },
+    "difficulty": 2,
+    "tags": ["curl", "api"],
+    "challenge": {
+      "type": "command",
+      "expected": "curl -k https://127.0.0.1:6443/healthz",
+      "acceptedPatterns": [
+        "^curl\\s+-k\\s+https://127\\.0\\.0\\.1:6443/healthz$",
+        "^curl\\s+--insecure\\s+https://127\\.0\\.0\\.1:6443/healthz$",
+        "^curl\\s+-k\\s+-s\\s+https://127\\.0\\.0\\.1:6443/healthz$"
+      ]
+    }
+  },
+  {
+    "id": "sh-openssl-001",
+    "category": "shell",
+    "domain": "cluster-architecture",
+    "scenario": {
+      "en": "Display the textual content of the certificate at '/etc/kubernetes/pki/apiserver.crt'.",
+      "fr": "Afficher le contenu texte du certificat '/etc/kubernetes/pki/apiserver.crt'."
+    },
+    "difficulty": 3,
+    "tags": ["openssl", "tls", "pki"],
+    "hints": {
+      "en": ["`openssl x509 -in <path> -text -noout`"],
+      "fr": ["`openssl x509 -in <chemin> -text -noout`"]
+    },
+    "challenge": {
+      "type": "command",
+      "expected": "openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout",
+      "explanation": {
+        "en": "`-noout` suppresses the encoded form. Often combined with `| grep -E 'Subject:|Issuer:|Not After'`.",
+        "fr": "`-noout` supprime la forme encodée. Souvent combiné avec `| grep -E 'Subject:|Issuer:|Not After'`."
+      },
+      "acceptedPatterns": [
+        "^openssl\\s+x509\\s+-in\\s+/etc/kubernetes/pki/apiserver\\.crt\\s+-text\\s+-noout$",
+        "^openssl\\s+x509\\s+-noout\\s+-text\\s+-in\\s+/etc/kubernetes/pki/apiserver\\.crt$",
+        "^openssl\\s+x509\\s+-in\\s+/etc/kubernetes/pki/apiserver\\.crt\\s+-noout\\s+-text$"
+      ]
+    }
+  },
+  {
+    "id": "sh-tar-001",
+    "category": "shell",
+    "domain": "other",
+    "scenario": {
+      "en": "Create a gzip-compressed archive 'backup.tar.gz' from the directory '/etc/kubernetes'.",
+      "fr": "Créer une archive gzippée 'backup.tar.gz' du répertoire '/etc/kubernetes'."
+    },
+    "difficulty": 1,
+    "tags": ["tar", "backup"],
+    "challenge": {
+      "type": "command",
+      "expected": "tar -czf backup.tar.gz /etc/kubernetes",
+      "acceptedPatterns": [
+        "^tar\\s+-czf\\s+backup\\.tar\\.gz\\s+/etc/kubernetes$",
+        "^tar\\s+-czvf\\s+backup\\.tar\\.gz\\s+/etc/kubernetes$",
+        "^tar\\s+czf\\s+backup\\.tar\\.gz\\s+/etc/kubernetes$",
+        "^tar\\s+--create\\s+--gzip\\s+--file[= ]backup\\.tar\\.gz\\s+/etc/kubernetes$"
+      ]
+    }
+  },
+  {
+    "id": "sh-base64-001",
+    "category": "shell",
+    "domain": "cluster-architecture",
+    "scenario": {
+      "en": "Decode the base64 string stored in the variable $TOKEN and print it.",
+      "fr": "Décoder la chaîne base64 stockée dans la variable $TOKEN et l'afficher."
+    },
+    "difficulty": 2,
+    "tags": ["base64", "secrets"],
+    "challenge": {
+      "type": "command",
+      "expected": "echo $TOKEN | base64 -d",
+      "explanation": {
+        "en": "`-d` decodes (alias `--decode`). Use `-w 0` if you re-encode and want no line wrapping.",
+        "fr": "`-d` décode (alias `--decode`). `-w 0` évite le wrapping si tu ré-encodes."
+      },
+      "acceptedPatterns": [
+        "^echo\\s+(\"\\$TOKEN\"|\\$TOKEN)\\s*\\|\\s*base64\\s+(-d|--decode)$",
+        "^echo\\s+(\"\\$TOKEN\"|\\$TOKEN)\\s*\\|\\s*base64\\s+-d\\s+-w\\s*0?$",
+        "^base64\\s+(-d|--decode)\\s+<<<\\s*(\"\\$TOKEN\"|\\$TOKEN)$",
+        "^printf\\s+['\"]%s['\"]\\s+(\"\\$TOKEN\"|\\$TOKEN)\\s*\\|\\s*base64\\s+(-d|--decode)$"
+      ]
+    }
+  },
+  {
+    "id": "sh-ps-001",
+    "category": "shell",
+    "domain": "troubleshooting",
+    "scenario": {
+      "en": "List every process whose command line contains 'kube-apiserver'.",
+      "fr": "Lister tous les processus dont la ligne de commande contient 'kube-apiserver'."
+    },
+    "difficulty": 2,
+    "tags": ["ps", "grep"],
+    "challenge": {
+      "type": "command",
+      "expected": "ps aux | grep kube-apiserver",
+      "acceptedPatterns": [
+        "^ps\\s+(aux|-ef)\\s*\\|\\s*grep\\s+(-v\\s+grep\\s*\\|\\s*grep\\s+)?kube-apiserver$",
+        "^pgrep\\s+-fa?\\s+kube-apiserver$",
+        "^pgrep\\s+-a\\s+kube-apiserver$"
+      ]
+    }
+  },
+  {
+    "id": "sh-lsof-001",
+    "category": "shell",
+    "domain": "services-networking",
+    "scenario": {
+      "en": "Find which process is listening on TCP port 6443.",
+      "fr": "Trouver quel processus écoute sur le port TCP 6443."
+    },
+    "difficulty": 3,
+    "tags": ["lsof", "ss", "network"],
+    "challenge": {
+      "type": "command",
+      "expected": "sudo lsof -i :6443",
+      "acceptedPatterns": [
+        "^(sudo\\s+)?lsof\\s+-i\\s*[:.]?\\s*:?6443$",
+        "^(sudo\\s+)?lsof\\s+-i\\s+:6443$",
+        "^(sudo\\s+)?ss\\s+-tlnp\\s+sport\\s+=\\s+:?6443$"
+      ]
+    }
+  },
+  {
+    "id": "sh-dig-001",
+    "category": "shell",
+    "domain": "services-networking",
+    "scenario": {
+      "en": "Resolve the in-cluster DNS name 'kubernetes.default.svc.cluster.local' using the cluster DNS at 10.96.0.10.",
+      "fr": "Résoudre le nom DNS in-cluster 'kubernetes.default.svc.cluster.local' via le DNS du cluster à 10.96.0.10."
+    },
+    "difficulty": 3,
+    "tags": ["dig", "dns", "coredns"],
+    "challenge": {
+      "type": "command",
+      "expected": "dig @10.96.0.10 kubernetes.default.svc.cluster.local",
+      "acceptedPatterns": [
+        "^dig\\s+@10\\.96\\.0\\.10\\s+kubernetes\\.default\\.svc\\.cluster\\.local\\.?$",
+        "^dig\\s+kubernetes\\.default\\.svc\\.cluster\\.local\\.?\\s+@10\\.96\\.0\\.10$",
+        "^nslookup\\s+kubernetes\\.default\\.svc\\.cluster\\.local\\s+10\\.96\\.0\\.10$"
+      ]
+    }
+  }
+]

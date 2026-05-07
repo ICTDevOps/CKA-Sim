@@ -1,0 +1,178 @@
+[
+  {
+    "id": "vi-save-001",
+    "category": "vi",
+    "domain": "other",
+    "scenario": {
+      "en": "Save the file and quit. The buffer already has the right content.",
+      "fr": "Sauvegarder le fichier et quitter. Le buffer a déjà le bon contenu."
+    },
+    "difficulty": 1,
+    "tags": ["vi", "save"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n",
+      "expectedBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n",
+      "optimalKeystrokes": 4,
+      "explanation": {
+        "en": "`:wq` (or `ZZ` in normal mode — 2 keystrokes) writes and quits.",
+        "fr": "`:wq` (ou `ZZ` en mode normal — 2 frappes) écrit et quitte."
+      }
+    }
+  },
+  {
+    "id": "vi-replace-001",
+    "category": "vi",
+    "domain": "workloads-scheduling",
+    "scenario": {
+      "en": "Replace every 'nginx' with 'httpd' in the whole buffer, then save.",
+      "fr": "Remplacer chaque 'nginx' par 'httpd' dans tout le buffer, puis sauvegarder."
+    },
+    "difficulty": 2,
+    "tags": ["vi", "substitute"],
+    "hints": {
+      "en": ["`:%s/nginx/httpd/g` — `%` covers the whole buffer, `g` every occurrence."],
+      "fr": ["`:%s/nginx/httpd/g` — `%` couvre tout le buffer, `g` chaque occurrence."]
+    },
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n",
+      "expectedBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: httpd\nspec:\n  containers:\n  - name: httpd\n    image: httpd\n",
+      "optimalKeystrokes": 19,
+      "explanation": {
+        "en": "`:%s/nginx/httpd/g` then `:wq`. The `g` flag is critical to catch ALL occurrences.",
+        "fr": "`:%s/nginx/httpd/g` puis `:wq`. Le flag `g` est crucial pour TOUTES les occurrences."
+      }
+    }
+  },
+  {
+    "id": "vi-replicas-001",
+    "category": "vi",
+    "domain": "workloads-scheduling",
+    "scenario": {
+      "en": "Change 'replicas: 1' to 'replicas: 3' (one occurrence). Save and quit.",
+      "fr": "Changer 'replicas: 1' en 'replicas: 3' (une seule occurrence). Sauvegarder et quitter."
+    },
+    "difficulty": 2,
+    "tags": ["vi", "edit"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 1\n  selector:\n    matchLabels:\n      app: api\n",
+      "expectedBuffer": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: api\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: api\n",
+      "optimalKeystrokes": 14,
+      "explanation": {
+        "en": "Search with `/replicas` then `n` to position, `f1` to jump to '1', `r3` replaces with '3'. Or `:%s/replicas: 1/replicas: 3/`.",
+        "fr": "`/replicas` puis `n`, `f1` pour aller au '1', `r3` remplace par '3'. Ou `:%s/replicas: 1/replicas: 3/`."
+      }
+    }
+  },
+  {
+    "id": "vi-delete-line-001",
+    "category": "vi",
+    "domain": "other",
+    "scenario": {
+      "en": "Delete the third line entirely, then save.",
+      "fr": "Supprimer entièrement la troisième ligne, puis sauvegarder."
+    },
+    "difficulty": 1,
+    "tags": ["vi", "delete"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "line one\nline two\nline three\nline four\nline five\n",
+      "expectedBuffer": "line one\nline two\nline four\nline five\n",
+      "optimalKeystrokes": 7,
+      "explanation": {
+        "en": "`3G` jumps to line 3, `dd` deletes the line, `:wq` saves. (Or `3Gdd:wq`.)",
+        "fr": "`3G` va à la ligne 3, `dd` supprime la ligne, `:wq` sauve."
+      }
+    }
+  },
+  {
+    "id": "vi-add-line-001",
+    "category": "vi",
+    "domain": "workloads-scheduling",
+    "scenario": {
+      "en": "Add a new line `  namespace: web` directly under the `metadata:` line. Save.",
+      "fr": "Ajouter une nouvelle ligne `  namespace: web` juste sous la ligne `metadata:`. Sauvegarder."
+    },
+    "difficulty": 3,
+    "tags": ["vi", "insert"],
+    "hints": {
+      "en": ["`o` opens a new line BELOW in insert mode; `O` opens ABOVE."],
+      "fr": ["`o` ouvre une nouvelle ligne EN-DESSOUS en insert mode ; `O` AU-DESSUS."]
+    },
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx\nspec:\n  containers:\n  - name: nginx\n",
+      "expectedBuffer": "apiVersion: v1\nkind: Pod\nmetadata:\n  namespace: web\n  name: nginx\nspec:\n  containers:\n  - name: nginx\n",
+      "optimalKeystrokes": 23,
+      "explanation": {
+        "en": "Position on `metadata:`, `o`, type `  namespace: web`, Esc, `:wq`.",
+        "fr": "Place le curseur sur `metadata:`, `o`, tape `  namespace: web`, Échap, `:wq`."
+      }
+    }
+  },
+  {
+    "id": "vi-yank-paste-001",
+    "category": "vi",
+    "domain": "other",
+    "scenario": {
+      "en": "Duplicate the second line so it appears twice in a row. Save.",
+      "fr": "Dupliquer la deuxième ligne pour qu'elle apparaisse deux fois d'affilée. Sauvegarder."
+    },
+    "difficulty": 2,
+    "tags": ["vi", "yank", "paste"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "alpha\nbeta\ngamma\ndelta\n",
+      "expectedBuffer": "alpha\nbeta\nbeta\ngamma\ndelta\n",
+      "optimalKeystrokes": 8,
+      "explanation": {
+        "en": "`2G` to line 2, `yy` yank the line, `p` paste below, `:wq`.",
+        "fr": "`2G` ligne 2, `yy` copie la ligne, `p` colle dessous, `:wq`."
+      }
+    }
+  },
+  {
+    "id": "vi-indent-001",
+    "category": "vi",
+    "domain": "other",
+    "scenario": {
+      "en": "Indent every line by two spaces (already partially indented or not). Save.",
+      "fr": "Indenter chaque ligne de deux espaces (déjà partiellement indenté ou pas). Sauvegarder."
+    },
+    "difficulty": 4,
+    "tags": ["vi", "substitute"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "name: api\nimage: nginx\nport: 80\n",
+      "expectedBuffer": "  name: api\n  image: nginx\n  port: 80\n",
+      "optimalKeystrokes": 14,
+      "explanation": {
+        "en": "`:%s/^/  /` prefixes every line with two spaces (the `^` anchor matches start of line).",
+        "fr": "`:%s/^/  /` préfixe chaque ligne de deux espaces (`^` ancre le début de ligne)."
+      }
+    }
+  },
+  {
+    "id": "vi-quit-no-save-001",
+    "category": "vi",
+    "domain": "other",
+    "scenario": {
+      "en": "Discard your changes and quit. The buffer should be left exactly as initially loaded.",
+      "fr": "Abandonner les modifications et quitter. Le buffer doit rester exactement comme chargé."
+    },
+    "difficulty": 1,
+    "tags": ["vi", "quit"],
+    "challenge": {
+      "type": "vi",
+      "initialBuffer": "important: data\nkeep: this\nintact: yes\n",
+      "expectedBuffer": "important: data\nkeep: this\nintact: yes\n",
+      "optimalKeystrokes": 4,
+      "explanation": {
+        "en": "`:q!` quits without saving. The buffer in the simulator is the ground-truth at submit time, so leaving it untouched and submitting is correct.",
+        "fr": "`:q!` quitte sans sauvegarder. Dans le simu, on compare le buffer à la soumission — laisser tel quel est correct."
+      }
+    }
+  }
+]
