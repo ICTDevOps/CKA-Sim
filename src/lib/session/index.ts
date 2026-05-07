@@ -5,6 +5,7 @@ export type {
   SessionState,
   SessionStatus
 } from "./types";
+export type { SubmitOptions } from "./engine";
 export {
   computeFinalScore,
   createSession,

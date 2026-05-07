@@ -1,5 +1,5 @@
 import type { Question } from "@/lib/questions/types";
-import { regexValidator } from "@/lib/validators";
+import { dispatchValidator } from "@/lib/validators";
 import type {
   AttemptRecord,
   FinalScore,
@@ -54,26 +54,47 @@ export function revealHint(state: SessionState): SessionState {
   return { ...state, hintsRevealed: state.hintsRevealed + 1 };
 }
 
+export interface SubmitOptions {
+  now?: number;
+  /** vi-only: number of keystrokes recorded during the question. */
+  keystrokes?: number;
+}
+
 /**
  * Soumet la réponse de l'utilisateur pour la question courante.
  * Le moteur ne valide pas les inputs vides : c'est à l'UI de les bloquer.
+ *
+ * Pour les questions vi, l'UI passe le `keystrokes` mesuré ; on récupère
+ * `optimalKeystrokes` depuis la définition de la question pour calculer
+ * l'efficacité côté client/dashboard.
  */
 export function submitAnswer(
   state: SessionState,
   input: string,
-  now: number = Date.now()
+  opts: SubmitOptions = {}
 ): SessionState {
   if (state.status !== "playing") return state;
+  const now = opts.now ?? Date.now();
   const question = currentQuestion(state);
-  const result = regexValidator.validate(input, question);
+  const result = dispatchValidator.validate(input, question);
   const startedAt = state.currentQuestionStartedAt ?? now;
+  const isVi = question.challenge.type === "vi";
   const attempt: AttemptRecord = {
     questionId: question.id,
     userInput: input,
     correct: result.correct,
     hintsUsed: state.hintsRevealed,
     timeMs: Math.max(0, now - startedAt),
-    submittedAt: now
+    submittedAt: now,
+    ...(isVi
+      ? {
+          keystrokes: opts.keystrokes,
+          optimalKeystrokes:
+            question.challenge.type === "vi"
+              ? question.challenge.optimalKeystrokes
+              : undefined
+        }
+      : {})
   };
   const nextIndex = state.currentIndex + 1;
   const finished = nextIndex >= state.config.totalQuestions
@@ -95,7 +116,7 @@ export function skipQuestion(
   state: SessionState,
   now: number = Date.now()
 ): SessionState {
-  return submitAnswer(state, "", now);
+  return submitAnswer(state, "", { now });
 }
 
 export function currentQuestion(state: SessionState): Question {

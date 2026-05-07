@@ -21,15 +21,19 @@ mkdirSync(OUT_DIR, { recursive: true });
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3737";
 
-const questions = JSON.parse(
+const kubectlQuestions = JSON.parse(
   readFileSync(resolve("src/data/questions/kubectl.json"), "utf8")
 );
-const byScenarioEn = new Map(
-  questions.map((q) => [q.scenario.en, q])
+const shellQuestions = JSON.parse(
+  readFileSync(resolve("src/data/questions/shell.json"), "utf8")
 );
-const byScenarioFr = new Map(
-  questions.map((q) => [q.scenario.fr, q])
+// command-type questions only; vi questions are auto-skipped during the
+// "play a session" loop (the script can't simulate vim keystrokes).
+const commandQuestions = [...kubectlQuestions, ...shellQuestions].filter(
+  (q) => q.challenge.type === "command"
 );
+const byScenarioEn = new Map(commandQuestions.map((q) => [q.scenario.en, q]));
+const byScenarioFr = new Map(commandQuestions.map((q) => [q.scenario.fr, q]));
 
 const browser = await chromium.launch({
   executablePath: process.env.PLAYWRIGHT_CHROMIUM || undefined,
@@ -64,7 +68,7 @@ async function captureLocale(locale) {
     await page.close();
   }
 
-  // 2 & 3. Session
+  // 2 & 3. Session — returns null for vi questions (no command to type).
   async function expectedForCurrent(page) {
     const article = page.locator("article");
     await article.waitFor({ state: "visible" });
@@ -73,8 +77,14 @@ async function captureLocale(locale) {
     ).trim();
     const map = isEn ? byScenarioEn : byScenarioFr;
     const q = map.get(scenario);
-    if (!q) throw new Error(`Question inconnue : ${scenario.slice(0, 60)}…`);
-    return q.challenge.expected;
+    return q ? q.challenge.expected : null;
+  }
+
+  async function isViQuestion(page) {
+    return page
+      .locator(".cm-editor")
+      .isVisible()
+      .catch(() => false);
   }
 
   {
@@ -82,7 +92,15 @@ async function captureLocale(locale) {
     await page.goto(`${BASE}/${locale}/session`, {
       waitUntil: "networkidle"
     });
-    await expectedForCurrent(page);
+    // Skip until we land on a non-vi question (the "question" + "feedback"
+    // screenshots use the command Prompt; vi gets its own dedicated capture).
+    for (let i = 0; i < 30; i++) {
+      const onVi = await isViQuestion(page);
+      const hasExpected = await expectedForCurrent(page);
+      if (!onVi && hasExpected) break;
+      await page.getByRole("button", { name: skipBtn, exact: true }).click();
+      await page.waitForTimeout(120);
+    }
     await page.waitForTimeout(300);
     await shotPage(page, `02-session-question.${locale}.png`);
 
@@ -95,12 +113,13 @@ async function captureLocale(locale) {
     await page.close();
   }
 
-  // 4. Score summary — single session.
+  // 4. Score summary — single session. vi questions are auto-skipped
+  //    (the script can't simulate vim sequences).
   async function playSession(page, skipIndices = new Set([2, 5, 8])) {
     await page.goto(`${BASE}/${locale}/session`, {
       waitUntil: "networkidle"
     });
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 18; i++) {
       const onSummary = await page
         .locator(`h2:has-text('${scoreHeading}')`)
         .isVisible()
@@ -108,12 +127,14 @@ async function captureLocale(locale) {
       if (onSummary) return;
       const article = page.locator("article");
       if (!(await article.isVisible().catch(() => false))) return;
-      if (skipIndices.has(i)) {
+      const expected = await expectedForCurrent(page);
+      const vi = await isViQuestion(page);
+      if (vi || !expected || skipIndices.has(i)) {
         await page
           .getByRole("button", { name: skipBtn, exact: true })
           .click();
+        await page.waitForTimeout(120);
       } else {
-        const expected = await expectedForCurrent(page);
         await page
           .locator(`input[aria-label="${promptAria}"]`)
           .fill(expected);
@@ -218,10 +239,65 @@ async function captureSettings(locale) {
   await context.close();
 }
 
+async function captureVi(locale) {
+  const skipBtn = locale === "en" ? "Skip" : "Passer";
+  const scoreHeading = "Score";
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+    colorScheme: "dark"
+  });
+  const page = await context.newPage();
+
+  // Retry up to 5 fresh sessions until we land on a vi question.
+  let found = false;
+  for (let attempt = 0; attempt < 5 && !found; attempt++) {
+    await page.goto(`${BASE}/${locale}/session`, { waitUntil: "networkidle" });
+    for (let i = 0; i < 12; i++) {
+      const onVi = await page
+        .locator(".cm-editor")
+        .isVisible()
+        .catch(() => false);
+      if (onVi) {
+        found = true;
+        break;
+      }
+      const onSummary = await page
+        .locator(`h2:has-text('${scoreHeading}')`)
+        .isVisible()
+        .catch(() => false);
+      if (onSummary) break;
+      const hasArticle = await page
+        .locator("article")
+        .isVisible()
+        .catch(() => false);
+      if (!hasArticle) break;
+      await page.getByRole("button", { name: skipBtn, exact: true }).click();
+      await page.waitForTimeout(120);
+    }
+  }
+
+  if (!found) {
+    console.warn(`[screenshot] could not land on a vi question in ${locale}`);
+    await page.close();
+    await context.close();
+    return;
+  }
+
+  await page.locator(".cm-content").click();
+  await page.waitForTimeout(400);
+  await shotPage(page, `07-vi-editor.${locale}.png`);
+  await page.close();
+  await context.close();
+}
+
 await captureLocale("en");
 await captureLocale("fr");
 await captureSettings("en");
 await captureSettings("fr");
+await captureVi("en");
+await captureVi("fr");
 
 await browser.close();
 console.log("Done.");

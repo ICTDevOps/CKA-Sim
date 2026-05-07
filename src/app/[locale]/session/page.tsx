@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Feedback } from "@/components/Feedback";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
@@ -9,6 +10,7 @@ import { QuestionCard } from "@/components/QuestionCard";
 import { ScoreSummary } from "@/components/ScoreSummary";
 import { Timer } from "@/components/Timer";
 import { TutorPanel } from "@/components/TutorPanel";
+import type { ViEditorHandle } from "@/components/ViEditor";
 import { Link } from "@/i18n/navigation";
 import { loadAllQuestions, shuffle } from "@/lib/questions";
 import type { Question, Locale } from "@/lib/questions/types";
@@ -23,6 +25,13 @@ import {
   type AttemptRecord,
   type SessionState
 } from "@/lib/session";
+
+// CodeMirror touches the DOM at module-load time — load it client-only to
+// keep the page server-renderable.
+const ViEditor = dynamic(
+  () => import("@/components/ViEditor").then((m) => m.ViEditor),
+  { ssr: false }
+);
 
 const TOTAL_QUESTIONS = 10;
 const PER_QUESTION_LIMIT_SEC = 60;
@@ -58,6 +67,8 @@ export default function SessionPage() {
     userInput: string;
     questionId: string;
     triggerKey: number;
+    keystrokes?: number;
+    optimalKeystrokes?: number;
   } | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [prefs, setPrefs] = useState<SessionPrefs>({
@@ -65,12 +76,12 @@ export default function SessionPage() {
     examMode: false
   });
   const promptRef = useRef<PromptHandle>(null);
+  const viEditorRef = useRef<ViEditorHandle>(null);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingNextStateRef = useRef<SessionState | null>(null);
   const triggerCounter = useRef(0);
   const endedRef = useRef(false);
 
-  // Fetch user prefs once: drives whether the tutor fires after each answer.
   useEffect(() => {
     fetch("/api/settings")
       .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
@@ -83,7 +94,6 @@ export default function SessionPage() {
       .catch((e) => console.warn("[cka-sim] load prefs failed:", e));
   }, []);
 
-  // Start the session + create a server-side run record on mount.
   useEffect(() => {
     setState((s) => (s.status === "ready" ? startSession(s) : s));
     fetch("/api/runs", {
@@ -131,6 +141,7 @@ export default function SessionPage() {
   }
 
   const q = currentQuestion(state);
+  const isVi = q.challenge.type === "vi";
   const tutorActive = prefs.aiTutorEnabled && !prefs.examMode;
 
   function postAttempt(question: Question, attempt: AttemptRecord) {
@@ -146,7 +157,9 @@ export default function SessionPage() {
         userInput: attempt.userInput,
         isCorrect: attempt.correct,
         timeMs: attempt.timeMs,
-        hintsUsed: attempt.hintsUsed
+        hintsUsed: attempt.hintsUsed,
+        keystrokes: attempt.keystrokes,
+        optimalKeystrokes: attempt.optimalKeystrokes
       })
     }).catch((e) => console.warn("[cka-sim] record attempt failed:", e));
   }
@@ -155,13 +168,15 @@ export default function SessionPage() {
     setState(after);
     setShowFeedback(null);
     setInput("");
-    promptRef.current?.focus();
+    if (currentQuestion(after).challenge.type !== "vi") {
+      promptRef.current?.focus();
+    }
   }
 
-  function handleSubmit(rawInput: string) {
+  function handleSubmit(rawInput: string, keystrokes?: number) {
     if (showFeedback) return;
     const questionAtSubmit = currentQuestion(state);
-    const after = submitAnswer(state, rawInput);
+    const after = submitAnswer(state, rawInput, { keystrokes });
     const lastAttempt = after.attempts[after.attempts.length - 1];
     postAttempt(questionAtSubmit, lastAttempt);
     triggerCounter.current += 1;
@@ -169,20 +184,25 @@ export default function SessionPage() {
       correct: lastAttempt.correct,
       userInput: lastAttempt.userInput,
       questionId: lastAttempt.questionId,
-      triggerKey: triggerCounter.current
+      triggerKey: triggerCounter.current,
+      keystrokes: lastAttempt.keystrokes,
+      optimalKeystrokes: lastAttempt.optimalKeystrokes
     });
-    // Remember the post-submit state so manual Next can apply it without
-    // re-running the engine (which would create a duplicate attempt).
     pendingNextStateRef.current = after;
-    // In exam mode (or with the tutor off), auto-advance like before. With
-    // the tutor on, the user controls the pace via the Next button so they
-    // have time to read the streamed explanation.
     if (!tutorActive) {
       advanceTimerRef.current = setTimeout(
         () => advance(after),
         AUTO_ADVANCE_MS
       );
     }
+  }
+
+  function handleSubmitVi() {
+    if (showFeedback || !viEditorRef.current) return;
+    handleSubmit(
+      viEditorRef.current.getBuffer(),
+      viEditorRef.current.getKeystrokes()
+    );
   }
 
   function handleSkip() {
@@ -220,7 +240,11 @@ export default function SessionPage() {
           <Timer
             startedAt={state.currentQuestionStartedAt}
             limitSec={state.config.perQuestionTimeLimitSec}
-            onTimeout={() => !showFeedback && handleSubmit(input)}
+            onTimeout={() => {
+              if (showFeedback) return;
+              if (isVi) handleSubmitVi();
+              else handleSubmit(input);
+            }}
           />
           <LocaleSwitcher />
         </div>
@@ -235,24 +259,47 @@ export default function SessionPage() {
           onRevealHint={() => setState(revealHint(state))}
         />
 
-        <Prompt
-          ref={promptRef}
-          value={input}
-          disabled={!!showFeedback}
-          onChange={setInput}
-          onSubmit={() => handleSubmit(input)}
-        />
+        {isVi ? (
+          <ViEditorBlock
+            // The key remounts the editor (and resets the keystroke counter)
+            // every time we move to a new question.
+            key={q.id}
+            question={q}
+            disabled={!!showFeedback}
+            editorRef={viEditorRef}
+          />
+        ) : (
+          <Prompt
+            ref={promptRef}
+            value={input}
+            disabled={!!showFeedback}
+            onChange={setInput}
+            onSubmit={() => handleSubmit(input)}
+          />
+        )}
 
         <div className="flex items-center justify-between text-xs text-terminal-dim">
-          <span>{t("submitHint")}</span>
-          <button
-            type="button"
-            onClick={handleSkip}
-            disabled={!!showFeedback}
-            className="rounded border border-terminal-dim/40 px-3 py-1 hover:border-terminal-fg disabled:opacity-40"
-          >
-            {t("skip")}
-          </button>
+          <span>{isVi ? t("viHint") : t("submitHint")}</span>
+          <div className="flex gap-2">
+            {isVi && (
+              <button
+                type="button"
+                onClick={handleSubmitVi}
+                disabled={!!showFeedback}
+                className="rounded bg-terminal-accent px-3 py-1 text-terminal-bg hover:opacity-90 disabled:opacity-40"
+              >
+                {t("viSubmit")}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleSkip}
+              disabled={!!showFeedback}
+              className="rounded border border-terminal-dim/40 px-3 py-1 hover:border-terminal-fg disabled:opacity-40"
+            >
+              {t("skip")}
+            </button>
+          </div>
         </div>
 
         {showFeedback && (
@@ -261,6 +308,8 @@ export default function SessionPage() {
               question={q}
               correct={showFeedback.correct}
               userInput={showFeedback.userInput}
+              keystrokes={showFeedback.keystrokes}
+              optimalKeystrokes={showFeedback.optimalKeystrokes}
             />
             {tutorActive && (
               <TutorPanel
@@ -286,5 +335,24 @@ export default function SessionPage() {
         )}
       </div>
     </main>
+  );
+}
+
+function ViEditorBlock({
+  question,
+  disabled,
+  editorRef
+}: {
+  question: Question;
+  disabled: boolean;
+  editorRef: React.RefObject<ViEditorHandle | null>;
+}) {
+  if (question.challenge.type !== "vi") return null;
+  return (
+    <ViEditor
+      ref={editorRef}
+      initialBuffer={question.challenge.initialBuffer}
+      disabled={disabled}
+    />
   );
 }
