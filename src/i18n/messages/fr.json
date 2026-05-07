@@ -52,10 +52,13 @@
     "title": "Tuteur IA",
     "loading": "Réflexion…",
     "errorPrefix": "Erreur tuteur :",
+    "warningPrefix": "À noter :",
     "settingsCta": "Ouvrir les paramètres",
     "next": "Question suivante",
     "skipTutor": "Passer le tuteur",
-    "providerLabel": "via {provider}"
+    "providerLabel": "via {provider}",
+    "sourcesTitle": "Sources",
+    "ragMissingHint": "Lance `npm run kb:build` pour activer les réponses ancrées sur la doc."
   },
   "score": {
     "headline": "Score : {correct} / {total} ({percent}%)",

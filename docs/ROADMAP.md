@@ -62,19 +62,33 @@ idiomatic alternatives.
 
 ---
 
-## Sprint 4 — Doc-grounded RAG
+## Sprint 4 — Doc-grounded RAG ✅
 
 **Goal:** zero hallucinations, clickable citations.
 
-- [ ] Ingestion pipeline: local files + git (kubernetes/website)
-- [ ] Chunking by H2/H3 sections
-- [ ] `EmbeddingProvider` (Local bge-small + OpenRouter)
-- [ ] Multi-model indexes (`kb-bge-small.db`, `kb-openai-3-small.db`, ...)
-- [ ] Boot validation (config ↔ index consistency)
-- [ ] Retrieval + reranking + LLM with forced citations
-- [ ] UI: sourced citations under every AI answer
+- [x] Ingestion pipeline: local Markdown files (`kb/*.md`)
+- [x] Chunking by H2 sections (each `## ...` becomes one chunk)
+- [x] `EmbeddingProvider` interface
+  - [x] `LocalBgeProvider` (`@huggingface/transformers`, bge-small-en, 384 d)
+  - [x] `OpenRouterEmbeddingProvider` (text-embedding-3-small/large, qwen3)
+- [x] Multi-model indexes: `npm run kb:build` produces a `kb.db` keyed
+      to a specific provider; `EMBEDDING_PROVIDER` + `KB_OUT` env vars
+      let you generate one per provider
+- [x] Boot validation: retrieval refuses to query an index built with
+      a different provider (clear `KbProviderMismatchError`)
+- [x] Retrieval via `sqlite-vec` virtual table (`vec0`, top-K cosine)
+- [x] Tutor system prompt updated to require `[N]` citation markers
+      tied to the retrieved chunks
+- [x] SSE pipeline: `sources` event before deltas; `warning` event for
+      non-fatal RAG issues (KB not built, mismatch); always falls back
+      gracefully if the KB is unavailable
+- [x] UI: clickable citation chips above the streamed answer; inline
+      `[N]` markers turned into hyperlinks to the matching source
 
 **Deliverable:** the tutor never says anything it can't source from the docs.
+
+> Future iterations: ingest more sources (kubernetes/website git clone),
+> add reranking, allow user-added custom web sources (Sprint 6).
 
 ---
 

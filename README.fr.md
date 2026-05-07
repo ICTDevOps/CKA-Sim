@@ -80,6 +80,21 @@ npm run dev
 
 Ouvre <http://localhost:3000>. Tape `Entrée` pour valider chaque commande.
 
+### Optionnel : activer le RAG ancré sur la doc
+
+Le tuteur IA peut ancrer ses réponses sur les extraits de documentation
+Kubernetes embarqués. Pour construire l'index vectoriel local (setup
+unique, ~130 Mo de modèle téléchargé depuis Hugging Face) :
+
+```bash
+npm run kb:build
+```
+
+Cela génère `kb.db` à la racine du repo. Redémarre le serveur et le
+tuteur citera désormais les URLs sources dans ses réponses (avec RAG
+activé dans les paramètres). Sans cette étape, le tuteur fonctionne
+quand même mais répond de mémoire.
+
 ### Scripts disponibles
 
 | Script              | Description                              |
@@ -89,6 +104,7 @@ Ouvre <http://localhost:3000>. Tape `Entrée` pour valider chaque commande.
 | `npm start`         | Démarre le build de production           |
 | `npm run typecheck` | Vérifie les types TypeScript             |
 | `npm run lint`      | Linter Next.js                           |
+| `npm run kb:build`  | Génère l'index vectoriel RAG (`kb.db`)   |
 
 ---
 
