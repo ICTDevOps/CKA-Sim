@@ -64,19 +64,35 @@ des alternatives idiomatiques.
 
 ---
 
-## Sprint 4 — RAG ancré sur la doc officielle
+## Sprint 4 — RAG ancré sur la doc officielle ✅
 
 **Objectif :** zéro hallucination, citations cliquables.
 
-- [ ] Pipeline d'ingestion : fichiers locaux + git (kubernetes/website)
-- [ ] Chunking par sections H2/H3
-- [ ] `EmbeddingProvider` (Local bge-small + OpenRouter)
-- [ ] Index multi-modèles (`kb-bge-small.db`, `kb-openai-3-small.db`, ...)
-- [ ] Validation au boot (cohérence config ↔ index)
-- [ ] Pipeline retrieval + reranking + LLM avec citations forcées
-- [ ] UI : citations sourcées sous chaque réponse IA
+- [x] Pipeline d'ingestion : fichiers Markdown locaux (`kb/*.md`)
+- [x] Chunking par sections H2 (chaque `## ...` devient un chunk)
+- [x] Interface `EmbeddingProvider`
+  - [x] `LocalBgeProvider` (`@huggingface/transformers`, bge-small-en, 384 d)
+  - [x] `OpenRouterEmbeddingProvider` (text-embedding-3-small/large, qwen3)
+- [x] Index multi-modèles : `npm run kb:build` produit un `kb.db` clé
+      à un provider précis ; `EMBEDDING_PROVIDER` + `KB_OUT` env vars
+      permettent d'en générer un par provider
+- [x] Validation au boot : la retrieval refuse de query un index
+      construit avec un provider différent (`KbProviderMismatchError`
+      clair)
+- [x] Retrieval via `sqlite-vec` virtual table (`vec0`, top-K cosine)
+- [x] System prompt du tuteur mis à jour : citations `[N]` obligatoires
+      référençant les chunks récupérés
+- [x] Pipeline SSE : event `sources` avant les deltas ; event
+      `warning` pour les problèmes non-fatals (KB non built, mismatch) ;
+      fallback gracieux si la KB est indisponible
+- [x] UI : badges de citation cliquables au-dessus du streaming ;
+      les marqueurs `[N]` inline deviennent des liens vers leurs sources
 
 **Livrable :** le tuteur ne dit plus rien qu'il ne puisse sourcer dans la doc.
+
+> Itérations futures : ingérer plus de sources (clone git
+> kubernetes/website), ajouter du reranking, permettre à l'utilisateur
+> d'ajouter ses sources web custom (Sprint 6).
 
 ---
 

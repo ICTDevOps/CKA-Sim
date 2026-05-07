@@ -79,6 +79,21 @@ npm run dev
 
 Open <http://localhost:3000>. Press `Enter` to submit each command.
 
+### Optional: enable the doc-grounded RAG
+
+The AI tutor can ground its answers in the bundled Kubernetes
+documentation snippets. To build the local vector index (one-time
+setup, ~130 MB model download from Hugging Face on first run):
+
+```bash
+npm run kb:build
+```
+
+This produces `kb.db` at the repo root. Restart the server and the
+tutor will now cite source URLs in its answers when RAG is enabled in
+Settings. Without this step, the tutor still works but answers from its
+own knowledge.
+
 ### Available scripts
 
 | Script              | Description                              |
@@ -88,6 +103,7 @@ Open <http://localhost:3000>. Press `Enter` to submit each command.
 | `npm start`         | Start the production build               |
 | `npm run typecheck` | Run TypeScript type checking             |
 | `npm run lint`      | Run Next.js linter                       |
+| `npm run kb:build`  | Build the RAG vector index (`kb.db`)     |
 
 ---
 

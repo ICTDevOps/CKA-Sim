@@ -15,12 +15,23 @@ interface TutorPanelProps {
   triggerKey: number;
 }
 
+interface Source {
+  url: string;
+  section: string;
+}
+
 type TutorStatus = "idle" | "streaming" | "done" | "error";
 
 /**
  * Subscribes to /api/tutor as a Server-Sent Events stream and renders the
- * incoming text as it arrives. The stream is auto-aborted on unmount or
- * when `triggerKey` changes (the user advanced to the next question).
+ * incoming text as it arrives. Auto-aborts on unmount or `triggerKey`
+ * change.
+ *
+ * SSE events handled:
+ *  - sources: render citation chips above the streamed text
+ *  - delta:   append text
+ *  - warning: non-fatal hint (e.g. KB not built)
+ *  - done / error: terminate
  */
 export function TutorPanel({
   question,
@@ -31,12 +42,16 @@ export function TutorPanel({
 }: TutorPanelProps) {
   const t = useTranslations("tutor");
   const [text, setText] = useState("");
+  const [sources, setSources] = useState<Source[]>([]);
+  const [warning, setWarning] = useState<string | null>(null);
   const [status, setStatus] = useState<TutorStatus>("idle");
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setText("");
+    setSources([]);
+    setWarning(null);
     setError(null);
     setStatus("streaming");
     const ctrl = new AbortController();
@@ -101,9 +116,14 @@ export function TutorPanel({
                     type: string;
                     text?: string;
                     message?: string;
+                    items?: Source[];
                   };
                   if (ev.type === "delta" && ev.text) {
                     setText((t) => t + ev.text);
+                  } else if (ev.type === "sources" && ev.items) {
+                    setSources(ev.items);
+                  } else if (ev.type === "warning" && ev.message) {
+                    setWarning(ev.message);
                   } else if (ev.type === "done") {
                     setStatus("done");
                   } else if (ev.type === "error") {
@@ -150,6 +170,38 @@ export function TutorPanel({
         )}
       </header>
 
+      {warning && (
+        <div className="mb-2 rounded border border-yellow-500/40 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-200">
+          <strong>{t("warningPrefix")}</strong> {warning}
+        </div>
+      )}
+
+      {sources.length > 0 && (
+        <div className="mb-3">
+          <div className="mb-1 text-xs uppercase tracking-wide text-terminal-dim">
+            {t("sourcesTitle")}
+          </div>
+          <ol className="flex flex-wrap gap-2 text-xs">
+            {sources.map((s, i) => (
+              <li
+                key={`${s.url}-${i}`}
+                className="rounded bg-black/40 px-2 py-0.5"
+              >
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-terminal-accent hover:underline"
+                  title={s.url}
+                >
+                  [{i + 1}] {s.section}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       {status === "error" ? (
         <div className="space-y-2 text-terminal-ko">
           <p>
@@ -164,7 +216,7 @@ export function TutorPanel({
         </div>
       ) : (
         <div className="whitespace-pre-wrap leading-relaxed text-terminal-fg">
-          <RenderTutorText text={text} />
+          <RenderTutorText text={text} sources={sources} />
           {status === "streaming" && <span className="caret" aria-hidden />}
         </div>
       )}
@@ -173,13 +225,19 @@ export function TutorPanel({
 }
 
 /**
- * Tiny inline-only Markdown renderer: just enough to colorize \`code\` and
- * **bold** while keeping line breaks. Avoids pulling in a full markdown lib
- * for what the system prompt is told to output.
+ * Tiny inline-only Markdown renderer:
+ *  - `code` → <code>
+ *  - **bold** → <strong>
+ *  - [N] when sources are available → links to the matching citation
  */
-function RenderTutorText({ text }: { text: string }) {
+function RenderTutorText({
+  text,
+  sources
+}: {
+  text: string;
+  sources: Source[];
+}) {
   if (!text) return null;
-  // Split on backticks first to isolate inline code.
   const parts = text.split(/(`[^`]+`)/g);
   return (
     <>
@@ -194,14 +252,40 @@ function RenderTutorText({ text }: { text: string }) {
             </code>
           );
         }
-        // Then split on **bold** within the non-code chunk.
         const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
         return boldParts.map((bp, j) => {
           const key = `${i}-${j}`;
           if (bp.startsWith("**") && bp.endsWith("**")) {
             return <strong key={key}>{bp.slice(2, -2)}</strong>;
           }
-          return <span key={key}>{bp}</span>;
+          // Replace [N] markers with hyperlinks when we have a source for N.
+          if (sources.length === 0 || !bp.includes("[")) {
+            return <span key={key}>{bp}</span>;
+          }
+          const segments = bp.split(/(\[\d+\])/g);
+          return (
+            <span key={key}>
+              {segments.map((seg, sIdx) => {
+                const m = seg.match(/^\[(\d+)\]$/);
+                if (!m) return <span key={sIdx}>{seg}</span>;
+                const n = Number(m[1]);
+                const src = sources[n - 1];
+                if (!src) return <span key={sIdx}>{seg}</span>;
+                return (
+                  <a
+                    key={sIdx}
+                    href={src.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`${src.section} — ${src.url}`}
+                    className="text-terminal-accent hover:underline"
+                  >
+                    {seg}
+                  </a>
+                );
+              })}
+            </span>
+          );
         });
       })}
     </>

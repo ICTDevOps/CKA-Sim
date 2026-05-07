@@ -52,10 +52,13 @@
     "title": "AI tutor",
     "loading": "Thinking…",
     "errorPrefix": "Tutor error:",
+    "warningPrefix": "Heads up:",
     "settingsCta": "Open settings",
     "next": "Next question",
     "skipTutor": "Skip tutor",
-    "providerLabel": "via {provider}"
+    "providerLabel": "via {provider}",
+    "sourcesTitle": "Sources",
+    "ragMissingHint": "Run `npm run kb:build` to enable doc-grounded answers."
   },
   "score": {
     "headline": "Score: {correct} / {total} ({percent}%)",
