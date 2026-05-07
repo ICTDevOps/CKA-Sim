@@ -1,5 +1,5 @@
 import { getPrefs } from "@/lib/settings/repository";
-import { ClaudeOAuthStubProvider } from "./claude-oauth";
+import { AnthropicProvider } from "./anthropic";
 import { OpenRouterProvider } from "./openrouter";
 import { LlmConfigError, type LlmProvider } from "./types";
 
@@ -22,7 +22,17 @@ export function getProviderForUser(userId: string): LlmProvider {
       prefs.openrouterModel
     );
   }
-  return new ClaudeOAuthStubProvider();
+  // Default → anthropic (also catches the legacy "claude-oauth" value
+  // normalized by the repository).
+  if (!prefs.anthropicApiKey) {
+    throw new LlmConfigError(
+      "Anthropic API key is missing. Add it on the Settings page."
+    );
+  }
+  return new AnthropicProvider(
+    prefs.anthropicApiKey,
+    prefs.anthropicModel
+  );
 }
 
 export { LlmConfigError } from "./types";

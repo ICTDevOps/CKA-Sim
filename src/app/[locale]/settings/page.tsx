@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { Link } from "@/i18n/navigation";
 import {
+  ANTHROPIC_CHAT_MODELS,
   OPENROUTER_CHAT_MODELS,
   type EmbeddingProvider,
   type LlmProvider
@@ -12,9 +13,10 @@ import {
 
 interface ClientPrefs {
   llmProvider: LlmProvider;
+  anthropicApiKeySet: boolean;
+  anthropicModel: string;
   openrouterApiKeySet: boolean;
   openrouterModel: string;
-  claudeOauthLinked: boolean;
   embeddingProvider: EmbeddingProvider;
   aiTutorEnabled: boolean;
   examMode: boolean;
@@ -31,8 +33,9 @@ const EMBEDDING_LABELS: Record<EmbeddingProvider, string> = {
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const [prefs, setPrefs] = useState<ClientPrefs | null>(null);
-  const [apiKeyDraft, setApiKeyDraft] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [anthropicKeyDraft, setAnthropicKeyDraft] = useState("");
+  const [openrouterKeyDraft, setOpenrouterKeyDraft] = useState("");
+  const [, setSaving] = useState(false);
   const [flash, setFlash] = useState<"saved" | "error" | null>(null);
 
   useEffect(() => {
@@ -55,7 +58,8 @@ export default function SettingsPage() {
         prefs: ClientPrefs;
       };
       setPrefs(updated);
-      setApiKeyDraft("");
+      setAnthropicKeyDraft("");
+      setOpenrouterKeyDraft("");
       setFlash("saved");
     } catch {
       setFlash("error");
@@ -72,8 +76,6 @@ export default function SettingsPage() {
       </main>
     );
   }
-
-  const isOpenRouter = prefs.llmProvider === "openrouter";
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-8">
@@ -119,38 +121,30 @@ export default function SettingsPage() {
       <Section title={t("providerSection")} hint={t("providerHint")}>
         <Radio
           name="llmProvider"
-          value="claude-oauth"
+          value="anthropic"
           current={prefs.llmProvider}
-          label={t("providerClaude")}
-          hint={t("providerClaudeHint")}
+          label={t("providerAnthropic")}
+          hint={t("providerAnthropicHint")}
           onChange={(v) => save({ llmProvider: v })}
         >
-          {prefs.llmProvider === "claude-oauth" && (
-            <div className="mt-2 flex items-center gap-2 text-xs">
-              {prefs.claudeOauthLinked ? (
-                <>
-                  <span className="text-terminal-ok">
-                    ✓ {t("providerClaudeLinked")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => save({ claudeOauthLinked: false })}
-                    className="text-terminal-dim underline hover:text-terminal-fg"
-                  >
-                    {t("providerClaudeUnlink")}
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="cursor-not-allowed rounded border border-terminal-dim/60 px-3 py-1 text-terminal-dim"
-                  title="Sprint 3"
-                >
-                  {t("providerClaudeLink")} (Sprint 3)
-                </button>
-              )}
-            </div>
+          {prefs.llmProvider === "anthropic" && (
+            <ApiKeyAndModel
+              keyLabel={t("anthropicApiKey")}
+              keyPlaceholder={t("anthropicApiKeyPlaceholder")}
+              keyStored={prefs.anthropicApiKeySet}
+              keyStoredLabel={t("anthropicApiKeyStored", { masked: "sk-ant-•••" })}
+              keyClearLabel={t("anthropicApiKeyClear")}
+              modelLabel={t("anthropicModel")}
+              models={[...ANTHROPIC_CHAT_MODELS]}
+              currentModel={prefs.anthropicModel}
+              draft={anthropicKeyDraft}
+              setDraft={setAnthropicKeyDraft}
+              onSaveKey={(k) => save({ anthropicApiKey: k })}
+              onClearKey={() => save({ clearAnthropicApiKey: true })}
+              onChangeModel={(m) => save({ anthropicModel: m })}
+              saveLabel={t("save")}
+              keyInputId="anthropic-key"
+            />
           )}
         </Radio>
 
@@ -162,97 +156,43 @@ export default function SettingsPage() {
           hint={t("providerOpenrouterHint")}
           onChange={(v) => save({ llmProvider: v })}
         >
-          {isOpenRouter && (
-            <div className="mt-3 space-y-3">
-              <div>
-                <label
-                  htmlFor="or-key"
-                  className="block text-xs text-terminal-dim"
-                >
-                  {t("openrouterApiKey")}
-                </label>
-                <div className="mt-1 flex gap-2">
-                  <input
-                    id="or-key"
-                    type="password"
-                    spellCheck={false}
-                    autoComplete="off"
-                    value={apiKeyDraft}
-                    onChange={(e) => setApiKeyDraft(e.target.value)}
-                    placeholder={t("openrouterApiKeyPlaceholder")}
-                    className="w-full rounded border border-terminal-dim/50 bg-black/40 px-3 py-2 text-sm outline-none focus:border-terminal-accent"
-                  />
-                  <button
-                    type="button"
-                    disabled={!apiKeyDraft || saving}
-                    onClick={() =>
-                      save({ openrouterApiKey: apiKeyDraft })
-                    }
-                    className="rounded bg-terminal-accent px-3 py-2 text-sm font-semibold text-terminal-bg hover:opacity-90 disabled:opacity-40"
-                  >
-                    {t("save")}
-                  </button>
-                </div>
-                {prefs.openrouterApiKeySet && (
-                  <p className="mt-1 flex items-center gap-2 text-xs text-terminal-ok">
-                    ✓ {t("openrouterApiKeyStored", { masked: "sk-or-•••" })}
-                    <button
-                      type="button"
-                      onClick={() => save({ clearOpenrouterApiKey: true })}
-                      className="text-terminal-dim underline hover:text-terminal-fg"
-                    >
-                      {t("openrouterApiKeyClear")}
-                    </button>
-                  </p>
-                )}
-              </div>
-              <div>
-                <label
-                  htmlFor="or-model"
-                  className="block text-xs text-terminal-dim"
-                >
-                  {t("openrouterModel")}
-                </label>
-                <select
-                  id="or-model"
-                  value={prefs.openrouterModel}
-                  onChange={(e) =>
-                    save({ openrouterModel: e.target.value })
-                  }
-                  className="mt-1 w-full rounded border border-terminal-dim/50 bg-black/40 px-3 py-2 text-sm outline-none focus:border-terminal-accent"
-                >
-                  {OPENROUTER_CHAT_MODELS.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+          {prefs.llmProvider === "openrouter" && (
+            <ApiKeyAndModel
+              keyLabel={t("openrouterApiKey")}
+              keyPlaceholder={t("openrouterApiKeyPlaceholder")}
+              keyStored={prefs.openrouterApiKeySet}
+              keyStoredLabel={t("openrouterApiKeyStored", { masked: "sk-or-•••" })}
+              keyClearLabel={t("openrouterApiKeyClear")}
+              modelLabel={t("openrouterModel")}
+              models={[...OPENROUTER_CHAT_MODELS]}
+              currentModel={prefs.openrouterModel}
+              draft={openrouterKeyDraft}
+              setDraft={setOpenrouterKeyDraft}
+              onSaveKey={(k) => save({ openrouterApiKey: k })}
+              onClearKey={() => save({ clearOpenrouterApiKey: true })}
+              onChangeModel={(m) => save({ openrouterModel: m })}
+              saveLabel={t("save")}
+              keyInputId="openrouter-key"
+            />
           )}
         </Radio>
       </Section>
 
       {/* Embeddings + RAG */}
-      <Section
-        title={t("embeddingsSection")}
-        hint={t("embeddingsHint")}
-      >
+      <Section title={t("embeddingsSection")} hint={t("embeddingsHint")}>
         <div className="space-y-2">
-          {(Object.keys(EMBEDDING_LABELS) as EmbeddingProvider[]).map(
-            (key) => (
-              <Radio
-                key={key}
-                name="embeddingProvider"
-                value={key}
-                current={prefs.embeddingProvider}
-                label={t(EMBEDDING_LABELS[key])}
-                onChange={(v) =>
-                  save({ embeddingProvider: v as EmbeddingProvider })
-                }
-              />
-            )
-          )}
+          {(Object.keys(EMBEDDING_LABELS) as EmbeddingProvider[]).map((key) => (
+            <Radio
+              key={key}
+              name="embeddingProvider"
+              value={key}
+              current={prefs.embeddingProvider}
+              label={t(EMBEDDING_LABELS[key])}
+              onChange={(v) =>
+                save({ embeddingProvider: v as EmbeddingProvider })
+              }
+            />
+          ))}
         </div>
         <div className="mt-3">
           <Toggle
@@ -375,6 +315,91 @@ function Radio<T extends string>({
         </span>
       </label>
       {children}
+    </div>
+  );
+}
+
+interface ApiKeyAndModelProps {
+  keyLabel: string;
+  keyPlaceholder: string;
+  keyStored: boolean;
+  keyStoredLabel: string;
+  keyClearLabel: string;
+  modelLabel: string;
+  models: string[];
+  currentModel: string;
+  draft: string;
+  setDraft: (v: string) => void;
+  onSaveKey: (k: string) => void;
+  onClearKey: () => void;
+  onChangeModel: (m: string) => void;
+  saveLabel: string;
+  keyInputId: string;
+}
+
+function ApiKeyAndModel(p: ApiKeyAndModelProps) {
+  return (
+    <div className="mt-3 space-y-3">
+      <div>
+        <label
+          htmlFor={p.keyInputId}
+          className="block text-xs text-terminal-dim"
+        >
+          {p.keyLabel}
+        </label>
+        <div className="mt-1 flex gap-2">
+          <input
+            id={p.keyInputId}
+            type="password"
+            spellCheck={false}
+            autoComplete="off"
+            value={p.draft}
+            onChange={(e) => p.setDraft(e.target.value)}
+            placeholder={p.keyPlaceholder}
+            className="w-full rounded border border-terminal-dim/50 bg-black/40 px-3 py-2 text-sm outline-none focus:border-terminal-accent"
+          />
+          <button
+            type="button"
+            disabled={!p.draft}
+            onClick={() => p.onSaveKey(p.draft)}
+            className="rounded bg-terminal-accent px-3 py-2 text-sm font-semibold text-terminal-bg hover:opacity-90 disabled:opacity-40"
+          >
+            {p.saveLabel}
+          </button>
+        </div>
+        {p.keyStored && (
+          <p className="mt-1 flex items-center gap-2 text-xs text-terminal-ok">
+            ✓ {p.keyStoredLabel}
+            <button
+              type="button"
+              onClick={p.onClearKey}
+              className="text-terminal-dim underline hover:text-terminal-fg"
+            >
+              {p.keyClearLabel}
+            </button>
+          </p>
+        )}
+      </div>
+      <div>
+        <label
+          htmlFor={`${p.keyInputId}-model`}
+          className="block text-xs text-terminal-dim"
+        >
+          {p.modelLabel}
+        </label>
+        <select
+          id={`${p.keyInputId}-model`}
+          value={p.currentModel}
+          onChange={(e) => p.onChangeModel(e.target.value)}
+          className="mt-1 w-full rounded border border-terminal-dim/50 bg-black/40 px-3 py-2 text-sm outline-none focus:border-terminal-accent"
+        >
+          {p.models.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

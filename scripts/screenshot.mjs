@@ -176,18 +176,13 @@ async function captureSettings(locale) {
 
     // Switch to OpenRouter to display the API key + model fields, then enable
     // the tutor and switch the embedding provider for a richer screenshot.
-    // Switch to OpenRouter (each interaction triggers an autosave + setState
-    // round-trip, so we click and wait rather than using .check()).
+    // The Anthropic radio is selected by default — fill its API key field
+    // (each interaction triggers an autosave + setState round-trip, so we
+    // click and wait rather than using .check()).
+    await page.waitForSelector("input#anthropic-key");
     await page
-      .locator(
-        'input[type="radio"][name="llmProvider"][value="openrouter"]'
-      )
-      .first()
-      .click();
-    await page.waitForTimeout(700);
-    // Wait for the API key input to be in the DOM.
-    await page.waitForSelector("input#or-key");
-    await page.locator("input#or-key").fill("sk-or-v1-demo-screenshot-key");
+      .locator("input#anthropic-key")
+      .fill("sk-ant-demo-screenshot-key");
     await page
       .getByRole("button", {
         name: locale === "en" ? "Save changes" : "Sauvegarder"
@@ -205,6 +200,9 @@ async function captureSettings(locale) {
       .locator('input[type="checkbox"]')
       .first()
       .click();
+    await page.waitForTimeout(500);
+    // Pick the Opus model for visual distinctiveness.
+    await page.locator("select#anthropic-key-model").selectOption("claude-opus-4-7");
     await page.waitForTimeout(500);
     // Switch embedding to OpenRouter 3-small for visual variety.
     await page
