@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { SourcesPanel } from "@/components/SourcesPanel";
 import { Link } from "@/i18n/navigation";
 import {
   ANTHROPIC_CHAT_MODELS,
@@ -203,6 +204,8 @@ export default function SettingsPage() {
           />
         </div>
       </Section>
+
+      <SourcesPanel />
 
       {flash && (
         <div

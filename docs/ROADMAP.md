@@ -116,19 +116,27 @@ idiomatic alternatives.
 
 ---
 
-## Sprint 6 — Custom web sources + admin UI
+## Sprint 6 — Custom web sources + admin UI ✅
 
 **Goal:** let users enrich the knowledge base with their own sources.
 
-- [ ] DB `sources` schema
-- [ ] Crawler with `robots.txt` compliance, identifiable User-Agent, rate
-      limiting
-- [ ] Incremental detection via `etag` / `If-Modified-Since` /
-      `content_hash`
-- [ ] Clean extraction via Mozilla Readability + turndown
-- [ ] `Settings → Knowledge sources` page
-- [ ] Split `kb-bundled.db` (image) + `kb-user.db` (volume)
-- [ ] In-container scheduler (`node-cron`)
+- [x] DB `sources` schema (in writable `kb-user.db`, separate from
+      bundled `kb.db`)
+- [x] Crawler with identifiable User-Agent (`CKA-Sim/0.1 (+repo URL)`),
+      conditional GET (`If-None-Match` + `If-Modified-Since`),
+      content-hash dedup, body-size cap
+- [x] Lightweight HTML → text extractor (strips chrome, scopes to
+      `<main>`/`<article>`, preserves heading levels as Markdown)
+- [x] `Settings → Knowledge sources` panel with add / refresh / delete
+- [x] Split `kb-bundled.db` (read-only, image) + `kb-user.db`
+      (volume) — retrieval merges results from both, sorted by distance
+- [x] **51-test vitest suite** covering validators, engine, loader,
+      settings repo, HTML extractor, chunker, sources repo
+- [ ] In-container scheduler (`node-cron`) — manual refresh via UI is
+      sufficient for the MVP; auto-refresh deferred
+- [ ] `robots.txt` compliance check before crawl — deferred (UA is
+      identifiable; per-host rate limiting can be added when source
+      counts grow)
 
 **Deliverable:** the user can index their blog, team docs, etc.
 

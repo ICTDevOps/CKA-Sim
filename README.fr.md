@@ -31,6 +31,10 @@ font la différence entre réussir le CKA dans le temps imparti et tomber court.
 
 ![Éditeur vi](./public/screenshots/07-vi-editor.fr.png)
 
+**Sources de connaissance custom** — colle une URL publique dans Paramètres → Sources de connaissance et le crawler fetche, extrait, chunke et embedde la page à la volée. Le RAG du tuteur fusionne ces sources avec la doc Kubernetes embarquée :
+
+La capture des paramètres ci-dessus inclut le panneau Sources avec trois entrées de démo (dont une en erreur pour montrer comment les échecs sont surfacés).
+
 ---
 
 ## 🎯 Pourquoi ce projet
@@ -109,6 +113,7 @@ quand même mais répond de mémoire.
 | `npm run typecheck` | Vérifie les types TypeScript             |
 | `npm run lint`      | Linter Next.js                           |
 | `npm run kb:build`  | Génère l'index vectoriel RAG (`kb.db`)   |
+| `npm test`          | Lance la suite vitest (51 tests)         |
 
 ---
 

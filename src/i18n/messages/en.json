@@ -157,6 +157,20 @@
     "ragEnabled": "Use retrieval (RAG) when calling the tutor",
     "ragEnabledHint": "When off, the tutor answers from its own knowledge — faster but more prone to hallucinations.",
 
-    "futureNotice": "Sprint 3 ships the actual AI calls; today this page only persists your preferences."
+    "sourcesSection": "Knowledge sources",
+    "sourcesHint": "Add public web pages (one URL at a time) to extend the doc-grounded RAG. Pages are fetched, extracted, chunked and embedded with your active embedding provider.",
+    "sourcesAddPlaceholder": "https://kubernetes.io/docs/...",
+    "sourcesNamePlaceholder": "Optional display name",
+    "sourcesAdd": "Add",
+    "sourcesAdding": "Fetching…",
+    "sourcesEmpty": "No sources added yet.",
+    "sourcesRefresh": "Refresh",
+    "sourcesDelete": "Delete",
+    "sourcesStatusOk": "{n} chunks · last fetched {when}",
+    "sourcesStatusPending": "queued",
+    "sourcesStatusError": "error: {error}",
+    "sourcesNeverFetched": "never",
+
+    "futureNotice": "Tip: changes take effect on your next session. The AI tutor uses these settings only when enabled and outside exam mode."
   }
 }
